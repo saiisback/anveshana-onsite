@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { compare, hash } from "bcryptjs";
 import prisma from "@/lib/prisma";
 
 export const auth = betterAuth({
@@ -8,6 +9,10 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    password: {
+      hash: (password) => hash(password, 12),
+      verify: ({ hash, password }) => compare(password, hash),
+    },
   },
   session: {
     cookieCache: {
