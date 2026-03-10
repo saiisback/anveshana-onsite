@@ -195,50 +195,6 @@ export default function LanyardWithControls({
             <label className="text-sm font-medium text-muted-foreground p-1 bg-background">
               Personalize your card
             </label>
-            <div className="flex items-center gap-3">
-              <label className="flex cursor-pointer items-center gap-1.5">
-                <input
-                  type="radio"
-                  name="cardVariant"
-                  value="dark"
-                  checked={cardVariant === "dark"}
-                  onChange={() => setCardVariant("dark")}
-                  className="sr-only"
-                />
-                <span
-                  className={`flex h-6 w-6 items-center justify-center rounded-full border-2 bg-black transition-all ${
-                    cardVariant === "dark"
-                      ? "border-primary ring-2 ring-primary/30"
-                      : "border-border"
-                  }`}
-                >
-                  {cardVariant === "dark" && (
-                    <span className="h-2 w-2 rounded-full bg-white" />
-                  )}
-                </span>
-              </label>
-              <label className="flex cursor-pointer items-center gap-1.5">
-                <input
-                  type="radio"
-                  name="cardVariant"
-                  value="light"
-                  checked={cardVariant === "light"}
-                  onChange={() => setCardVariant("light")}
-                  className="sr-only"
-                />
-                <span
-                  className={`flex h-6 w-6 items-center justify-center rounded-full border-2 bg-white transition-all ${
-                    cardVariant === "light"
-                      ? "border-primary ring-2 ring-primary/30"
-                      : "border-border"
-                  }`}
-                >
-                  {cardVariant === "light" && (
-                    <span className="h-2 w-2 rounded-full bg-black" />
-                  )}
-                </span>
-              </label>
-            </div>
           </div>
           <div className="flex gap-2">
             <div className="relative flex-1">

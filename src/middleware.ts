@@ -1,8 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { betterFetch } from "@better-fetch/fetch";
-import type { Session } from "@/lib/auth";
-
-const authPaths = ["/login", "/register"];
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
@@ -18,15 +14,13 @@ export async function middleware(req: NextRequest) {
   }
 
   // Verify the session by calling the auth API with the cookie forwarded
-  const { data: session } = await betterFetch<Session>(
-    "/api/auth/get-session",
-    {
-      baseURL: req.nextUrl.origin,
-      headers: {
-        cookie: req.headers.get("cookie") || "",
-      },
-    }
-  );
+  const res = await fetch(`${req.nextUrl.origin}/api/auth/get-session`, {
+    headers: {
+      cookie: req.headers.get("cookie") || "",
+    },
+  });
+
+  const session = res.ok ? await res.json() : null;
 
   if (!session) {
     // Clear stale cookies and redirect
