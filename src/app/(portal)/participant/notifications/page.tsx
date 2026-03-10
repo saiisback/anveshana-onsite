@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import {
   Card,
   CardContent,
@@ -44,7 +44,7 @@ function formatTime(ts: number) {
 
 export default function ParticipantNotificationsPage() {
   const { data: session } = useSession();
-  const userId = (session?.user as { id?: string })?.id ?? "";
+  const userId = session?.user?.id ?? "";
 
   const notifications = useQuery(
     api.notifications.listByUser,

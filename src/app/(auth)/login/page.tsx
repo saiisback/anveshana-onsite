@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { signIn } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,22 +36,19 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await signIn("credentials", {
+      const result = await signIn.email({
         email,
         password,
-        redirect: false,
       });
 
-      if (result?.error) {
+      if (result.error) {
         setError("Invalid email or password. Please try again.");
         setLoading(false);
         return;
       }
 
-      // Fetch session to get role
-      const res = await fetch("/api/auth/session");
-      const session = await res.json();
-      const role = session?.user?.role ?? "PARTICIPANT";
+      const role =
+        (result.data?.user as { role?: string })?.role ?? "PARTICIPANT";
       router.push(roleRedirects[role] ?? "/participant");
     } catch {
       setError("Something went wrong. Please try again.");

@@ -53,15 +53,28 @@ export async function POST(request: Request) {
             return existingUser;
           }
 
-          return tx.user.create({
+          const user = await tx.user.create({
             data: {
               name: member.name,
               email: member.email,
+              emailVerified: true,
               phone: member.phone ?? null,
               password: hashedPassword,
               role: "PARTICIPANT",
             },
           });
+
+          // Create credential account for BetterAuth
+          await tx.account.create({
+            data: {
+              userId: user.id,
+              accountId: user.id,
+              providerId: "credential",
+              password: hashedPassword,
+            },
+          });
+
+          return user;
         })
       );
 

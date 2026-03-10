@@ -2,15 +2,14 @@
 
 import { useQuery } from "convex/react";
 import { api } from "@convex/_generated/api";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { Bell } from "lucide-react";
 import Link from "next/link";
 
 export function NotificationBell() {
   const { data: session } = useSession();
-  const user = session?.user as { id?: string; role?: string } | undefined;
-  const userId = user?.id ?? "";
-  const role = user?.role?.toLowerCase() ?? "participant";
+  const userId = session?.user?.id ?? "";
+  const role = (session?.user as { role?: string })?.role?.toLowerCase() ?? "participant";
 
   const unreadCount = useQuery(
     api.notifications.countUnread,

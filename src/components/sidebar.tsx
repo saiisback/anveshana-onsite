@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
+import { signOut } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -112,6 +112,7 @@ function SidebarContent({
   onNavigate,
 }: SidebarProps & { pathname: string; onNavigate?: () => void }) {
   const items = navItems[role];
+  const router = useRouter();
 
   return (
     <div className="flex h-full flex-col">
@@ -142,7 +143,10 @@ function SidebarContent({
         <Button
           variant="ghost"
           className="w-full justify-start gap-2 text-slate-300 hover:bg-white/5 hover:text-white"
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={async () => {
+            await signOut();
+            router.push("/login");
+          }}
         >
           <LogOut className="size-4" />
           Logout

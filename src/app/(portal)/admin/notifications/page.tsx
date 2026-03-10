@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import {
   Card,
   CardContent,
@@ -24,7 +24,7 @@ type TargetRole = (typeof TARGET_ROLES)[number];
 
 export default function AdminNotificationsPage() {
   const { data: session } = useSession();
-  const userId = (session?.user as { id?: string })?.id ?? "";
+  const userId = session?.user?.id ?? "";
 
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");

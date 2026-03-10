@@ -1,5 +1,5 @@
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth-server";
 import prisma from "@/lib/prisma";
 import {
   Card,
@@ -16,7 +16,7 @@ import {
 import Link from "next/link";
 
 export default async function VolunteerDashboard() {
-  const session = await getServerSession();
+  const session = await getSession();
   if (!session?.user?.email) redirect("/login");
 
   const user = await prisma.user.findUnique({

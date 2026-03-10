@@ -1,37 +1,39 @@
-import { withAuth } from "next-auth/middleware";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { betterFetch } from "@better-fetch/fetch";
+import type { Session } from "@/lib/auth";
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token;
-    const pathname = req.nextUrl.pathname;
-
-    // Admin routes - only ADMIN role
-    if (pathname.startsWith("/admin") && token?.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/login", req.url));
+export async function middleware(req: NextRequest) {
+  const { data: session } = await betterFetch<Session>(
+    "/api/auth/get-session",
+    {
+      baseURL: req.nextUrl.origin,
+      headers: {
+        cookie: req.headers.get("cookie") || "",
+      },
     }
+  );
 
-    // Volunteer routes - only VOLUNTEER role
-    if (pathname.startsWith("/volunteer") && token?.role !== "VOLUNTEER") {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
-
-    // Participant routes - only PARTICIPANT role
-    if (pathname.startsWith("/participant") && token?.role !== "PARTICIPANT") {
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
-
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token }) => !!token,
-    },
-    pages: {
-      signIn: "/login",
-    },
+  if (!session) {
+    return NextResponse.redirect(new URL("/login", req.url));
   }
-);
+
+  const pathname = req.nextUrl.pathname;
+  const role = (session.user as { role?: string })?.role;
+
+  if (pathname.startsWith("/admin") && role !== "ADMIN") {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  if (pathname.startsWith("/volunteer") && role !== "VOLUNTEER") {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  if (pathname.startsWith("/participant") && role !== "PARTICIPANT") {
+    return NextResponse.redirect(new URL("/login", req.url));
+  }
+
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: ["/participant/:path*", "/volunteer/:path*", "/admin/:path*"],
