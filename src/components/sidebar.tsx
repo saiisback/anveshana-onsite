@@ -92,8 +92,8 @@ function NavLinks({
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
               isActive
-                ? "bg-white/10 text-white"
-                : "text-slate-300 hover:bg-white/5 hover:text-white"
+                ? "bg-primary/15 text-primary"
+                : "text-muted-foreground hover:bg-primary/5 hover:text-foreground"
             )}
           >
             {item.icon}
@@ -117,13 +117,13 @@ function SidebarContent({
   return (
     <div className="flex h-full flex-col">
       {/* Branding */}
-      <div className="flex items-center gap-3 border-b border-white/10 px-4 py-5">
-        <div className="flex size-9 items-center justify-center rounded-lg bg-indigo-500">
-          <FlaskConical className="size-5 text-white" />
+      <div className="flex items-center gap-3 border-b border-border px-4 py-5">
+        <div className="flex size-9 items-center justify-center rounded-lg bg-primary">
+          <FlaskConical className="size-5 text-primary-foreground" />
         </div>
         <div>
-          <h1 className="text-lg font-bold text-white">Anveshana</h1>
-          <p className="text-xs text-slate-400">On-Site Portal</p>
+          <h1 className="font-mono text-lg font-bold text-foreground">Anveshana</h1>
+          <p className="text-xs text-muted-foreground">On-Site Portal</p>
         </div>
       </div>
 
@@ -133,16 +133,16 @@ function SidebarContent({
       </div>
 
       {/* User info & Logout */}
-      <div className="border-t border-white/10 px-4 py-4">
+      <div className="border-t border-border px-4 py-4">
         <div className="mb-3">
-          <p className="text-sm font-medium text-white">
+          <p className="text-sm font-medium text-foreground">
             {userName || "User"}
           </p>
-          <p className="text-xs text-slate-400">{role}</p>
+          <p className="text-xs text-muted-foreground">{role}</p>
         </div>
         <Button
           variant="ghost"
-          className="w-full justify-start gap-2 text-slate-300 hover:bg-white/5 hover:text-white"
+          className="w-full justify-start gap-2 text-muted-foreground hover:bg-primary/5 hover:text-foreground"
           onClick={async () => {
             await signOut();
             router.push("/login");
@@ -163,19 +163,19 @@ export function Sidebar({ role, userName }: SidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 bg-slate-900 lg:block">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-border bg-sidebar lg:block">
         <SidebarContent role={role} userName={userName} pathname={pathname} />
       </aside>
 
-      {/* Mobile hamburger */}
-      <div className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center border-b bg-slate-900 px-4 lg:hidden">
+      {/* Mobile top bar */}
+      <div className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center border-b border-border bg-sidebar px-4 lg:hidden">
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger
-            className="inline-flex size-10 items-center justify-center rounded-md text-white hover:bg-white/10"
+            className="inline-flex size-10 items-center justify-center rounded-md text-foreground hover:bg-primary/10"
           >
             <Menu className="size-5" />
           </SheetTrigger>
-          <SheetContent side="left" className="w-64 bg-slate-900 p-0 border-slate-800">
+          <SheetContent side="left" className="w-64 bg-sidebar p-0 border-border">
             <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
             <SidebarContent
               role={role}
@@ -186,8 +186,8 @@ export function Sidebar({ role, userName }: SidebarProps) {
           </SheetContent>
         </Sheet>
         <div className="ml-3 flex items-center gap-2">
-          <FlaskConical className="size-5 text-indigo-400" />
-          <span className="text-sm font-bold text-white">Anveshana</span>
+          <FlaskConical className="size-5 text-primary" />
+          <span className="font-mono text-sm font-bold text-foreground">Anveshana</span>
         </div>
       </div>
     </>

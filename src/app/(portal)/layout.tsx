@@ -17,15 +17,15 @@ export default async function PortalLayout({
     (session.user as { role?: string })?.role ?? "PARTICIPANT";
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background text-foreground">
       <Sidebar
         role={role as "PARTICIPANT" | "VOLUNTEER" | "ADMIN"}
         userName={session.user?.name ?? undefined}
       />
 
       {/* Main content */}
-      <main className="min-h-screen pt-14 lg:ml-64 lg:pt-0">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      <main className="min-h-screen pt-16 lg:ml-64 lg:pt-0">
+        <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
           {children}
         </div>
       </main>
