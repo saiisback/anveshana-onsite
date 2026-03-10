@@ -3,7 +3,7 @@ import Link from 'next/link'
 import {Menu, X} from 'lucide-react'
 import {Button} from '@/components/ui/landing-button'
 import React from 'react'
-import AnveshanaIcon from "@/components/icons/anveshana-icon";
+import Image from "next/image";
 
 export const HeroHeader = () => {
     const [menuState, setMenuState] = React.useState(false)
@@ -19,7 +19,7 @@ export const HeroHeader = () => {
                                 href="/"
                                 aria-label="home"
                                 className="flex items-center space-x-2">
-                                <AnveshanaIcon size={30} className='text-foreground'/>
+                                <Image src="/anveshana.png" alt="Anveshana'26" width={30} height={30} />
                                 <span className='font-mono'>Anveshana</span>
                             </Link>
 

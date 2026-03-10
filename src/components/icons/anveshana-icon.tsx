@@ -1,18 +1,22 @@
 import * as React from "react";
-import Image from "next/image";
+import {IconProps} from "@/types";
 
-interface AnveshanaIconProps {
-    size?: number;
-    className?: string;
-}
-
-const AnveshanaIcon = ({size = 30, className}: AnveshanaIconProps) => (
-    <Image
-        src="/anveshana.png"
-        alt="Anveshana Logo"
-        width={size}
+const AnveshanaIcon = ({size = 30, ...props}: IconProps) => (
+    <svg
         height={size}
-        className={className}
-    />
+        width={size}
+        viewBox="0 0 100 100"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        {...props}
+    >
+        <circle cx="50" cy="50" r="45" stroke="currentColor" strokeWidth="4" fill="none"/>
+        <path
+            d="M50 15 L65 55 L75 85 L50 70 L25 85 L35 55 Z"
+            fill="currentColor"
+            opacity="0.9"
+        />
+        <circle cx="50" cy="42" r="8" fill="currentColor" opacity="0.7"/>
+    </svg>
 );
 export default AnveshanaIcon;

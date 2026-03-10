@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import React from "react";
-import AnveshanaIcon from "@/components/icons/anveshana-icon";
+import Image from "next/image";
 
 const links = [
     {
@@ -12,8 +12,8 @@ const links = [
         href: '/login',
     },
     {
-        title: 'About IIC-BICEP',
-        href: '#',
+        title: 'About Agastya',
+        href: 'https://www.agastya.org/',
     },
 ]
 
@@ -25,7 +25,7 @@ export default function FooterSection() {
                     href="/"
                     aria-label="go home"
                     className="mx-auto block size-fit">
-                    <AnveshanaIcon size={30} className='text-foreground'/>
+                    <Image src="/anveshana.png" alt="Anveshana'26" width={30} height={30} />
                 </Link>
 
                 <div className="my-8 flex flex-wrap justify-center gap-6 text-sm">
