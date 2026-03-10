@@ -39,18 +39,18 @@ interface NavItem {
 
 const navItems: Record<Role, NavItem[]> = {
   PARTICIPANT: [
-    { label: "Dashboard", href: "/participant", icon: <LayoutDashboard className="size-5" /> },
+    { label: "Home", href: "/participant", icon: <LayoutDashboard className="size-5" /> },
     { label: "Schedule", href: "/participant/schedule", icon: <Calendar className="size-5" /> },
     { label: "Help", href: "/participant/help", icon: <HelpCircle className="size-5" /> },
     { label: "Map", href: "/participant/map", icon: <Map className="size-5" /> },
-    { label: "Notifications", href: "/participant/notifications", icon: <Bell className="size-5" /> },
+    { label: "Alerts", href: "/participant/notifications", icon: <Bell className="size-5" /> },
   ],
   VOLUNTEER: [
-    { label: "Dashboard", href: "/volunteer", icon: <LayoutDashboard className="size-5" /> },
-    { label: "Scanner", href: "/volunteer/scan", icon: <ScanLine className="size-5" /> },
+    { label: "Home", href: "/volunteer", icon: <LayoutDashboard className="size-5" /> },
+    { label: "Scan", href: "/volunteer/scan", icon: <ScanLine className="size-5" /> },
     { label: "Requests", href: "/volunteer/requests", icon: <Inbox className="size-5" /> },
     { label: "Map", href: "/volunteer/map", icon: <Map className="size-5" /> },
-    { label: "Notifications", href: "/volunteer/notifications", icon: <Bell className="size-5" /> },
+    { label: "Alerts", href: "/volunteer/notifications", icon: <Bell className="size-5" /> },
   ],
   ADMIN: [
     { label: "Dashboard", href: "/admin", icon: <LayoutDashboard className="size-5" /> },
@@ -63,6 +63,8 @@ const navItems: Record<Role, NavItem[]> = {
     { label: "Settings", href: "/admin/settings", icon: <Settings className="size-5" /> },
   ],
 };
+
+const useBottomNav = (role: Role) => role === "PARTICIPANT" || role === "VOLUNTEER";
 
 interface SidebarProps {
   role: Role;
@@ -156,40 +158,84 @@ function SidebarContent({
   );
 }
 
+function BottomNavBar({ role, pathname }: { role: Role; pathname: string }) {
+  const items = navItems[role];
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-sidebar lg:hidden">
+      <div className="flex items-center justify-around px-1 pb-[env(safe-area-inset-bottom)]">
+        {items.map((item) => {
+          const isActive =
+            pathname === item.href ||
+            (item.href !== "/" && pathname.startsWith(item.href + "/"));
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors",
+                isActive
+                  ? "text-primary"
+                  : "text-muted-foreground active:text-foreground"
+              )}
+            >
+              <div
+                className={cn(
+                  "flex size-8 items-center justify-center rounded-xl transition-colors",
+                  isActive && "bg-primary/15"
+                )}
+              >
+                {item.icon}
+              </div>
+              {item.label}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
+
 export function Sidebar({ role, userName }: SidebarProps) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const isBottomNav = useBottomNav(role);
 
   return (
     <>
-      {/* Desktop sidebar */}
+      {/* Desktop sidebar — all roles */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-64 border-r border-border bg-sidebar lg:block">
         <SidebarContent role={role} userName={userName} pathname={pathname} />
       </aside>
 
-      {/* Mobile top bar */}
-      <div className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center border-b border-border bg-sidebar px-4 lg:hidden">
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger
-            className="inline-flex size-10 items-center justify-center rounded-md text-foreground hover:bg-primary/10"
-          >
-            <Menu className="size-5" />
-          </SheetTrigger>
-          <SheetContent side="left" className="w-64 bg-sidebar p-0 border-border">
-            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-            <SidebarContent
-              role={role}
-              userName={userName}
-              pathname={pathname}
-              onNavigate={() => setOpen(false)}
-            />
-          </SheetContent>
-        </Sheet>
-        <div className="ml-3 flex items-center gap-2">
-          <FlaskConical className="size-5 text-primary" />
-          <span className="font-mono text-sm font-bold text-foreground">Anveshana</span>
+      {isBottomNav ? (
+        /* Mobile bottom navbar — participant & volunteer */
+        <BottomNavBar role={role} pathname={pathname} />
+      ) : (
+        /* Mobile top bar + drawer — admin */
+        <div className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center border-b border-border bg-sidebar px-4 lg:hidden">
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger
+              className="inline-flex size-10 items-center justify-center rounded-md text-foreground hover:bg-primary/10"
+            >
+              <Menu className="size-5" />
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64 bg-sidebar p-0 border-border">
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+              <SidebarContent
+                role={role}
+                userName={userName}
+                pathname={pathname}
+                onNavigate={() => setOpen(false)}
+              />
+            </SheetContent>
+          </Sheet>
+          <div className="ml-3 flex items-center gap-2">
+            <FlaskConical className="size-5 text-primary" />
+            <span className="font-mono text-sm font-bold text-foreground">Anveshana</span>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
