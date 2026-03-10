@@ -1,24 +1,16 @@
+import React from "react"
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
 import { Providers } from "@/components/providers";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+const geistSans = Geist({ subsets: ["latin"] });
+const geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Anveshana 2026 | On-Site Portal",
+  title: "Anveshana 2026 | National-Level Prototype Exhibition",
   description:
-    "On-site management portal for Anveshana 2026 prototype exhibition",
+    "A national-level prototype exhibition bringing together young innovators, mentors, and industry leaders to showcase groundbreaking science and engineering projects.",
 };
 
 export default function RootLayout({
@@ -27,10 +19,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", geistSans.variable)}>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en" className="dark">
+      <body className="font-sans antialiased">
         <Providers>{children}</Providers>
       </body>
     </html>

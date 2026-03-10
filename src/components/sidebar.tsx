@@ -170,10 +170,10 @@ export function Sidebar({ role, userName }: SidebarProps) {
       {/* Mobile hamburger */}
       <div className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center border-b bg-slate-900 px-4 lg:hidden">
         <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger>
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
-              <Menu className="size-5" />
-            </Button>
+          <SheetTrigger
+            className="inline-flex size-10 items-center justify-center rounded-md text-white hover:bg-white/10"
+          >
+            <Menu className="size-5" />
           </SheetTrigger>
           <SheetContent side="left" className="w-64 bg-slate-900 p-0 border-slate-800">
             <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
