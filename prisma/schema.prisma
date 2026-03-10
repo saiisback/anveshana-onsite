@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  PARTICIPANT
+  VOLUNTEER
+  JUDGE
+  ADMIN
+}
+
+enum TeamStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum JudgeAssignmentStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+}
+
+model User {
+  id             String            @id @default(cuid())
+  name           String
+  email          String            @unique
+  phone          String?
+  password       String
+  role           Role              @default(PARTICIPANT)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  teamMembers    TeamMember[]
+  judgeAssignments JudgeAssignment[]
+  volunteerZones VolunteerZone[]
+}
+
+model Team {
+  id              String        @id @default(cuid())
+  name            String        @unique
+  prototypeTitle  String
+  description     String
+  category        String
+  requirements    String?
+  stallNumber     Int?          @unique
+  status          TeamStatus    @default(PENDING)
+  qrCode          String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  members         TeamMember[]
+  judgeAssignments JudgeAssignment[]
+  stallLocation   StallLocation?
+}
+
+model TeamMember {
+  id         String @id @default(cuid())
+  teamId     String
+  userId     String
+  roleInTeam String @default("member")
+  team       Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+}
+
+model Event {
+  id             String   @id @default(cuid())
+  name           String
+  date           DateTime
+  venue          String
+  description    String?
+  scheduleConfig Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model JudgeAssignment {
+  id            String                 @id @default(cuid())
+  judgeId       String
+  teamId        String
+  timeSlotStart DateTime
+  timeSlotEnd   DateTime
+  status        JudgeAssignmentStatus  @default(SCHEDULED)
+  score         Float?
+  judge         User                   @relation(fields: [judgeId], references: [id], onDelete: Cascade)
+  team          Team                   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  @@unique([judgeId, timeSlotStart])
+}
+
+model StallLocation {
+  id          String @id @default(cuid())
+  stallNumber Int    @unique
+  building    String
+  floor       Int
+  x           Float
+  y           Float
+  z           Float  @default(0)
+  teamId      String @unique
+  team        Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+}
+
+model VolunteerZone {
+  id          String @id @default(cuid())
+  volunteerId String
+  zoneName    String
+  building    String
+  floor       Int
+  volunteer   User   @relation(fields: [volunteerId], references: [id], onDelete: Cascade)
+}

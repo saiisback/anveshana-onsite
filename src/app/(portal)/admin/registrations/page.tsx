@@ -1,0 +1,39 @@
+import prisma from "@/lib/prisma";
+import { RegistrationsClient } from "./registrations-client";
+
+export default async function AdminRegistrationsPage() {
+  const pendingTeams = await prisma.team.findMany({
+    where: { status: "PENDING" },
+    include: {
+      members: {
+        include: {
+          user: {
+            select: { id: true, name: true, email: true },
+          },
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const teams = pendingTeams.map((team) => ({
+    id: team.id,
+    name: team.name,
+    prototypeTitle: team.prototypeTitle,
+    category: team.category,
+    membersCount: team.members.length,
+    createdAt: team.createdAt.toISOString(),
+  }));
+
+  return (
+    <div className="space-y-6 p-4">
+      <div>
+        <h1 className="text-2xl font-bold">Pending Registrations</h1>
+        <p className="text-sm text-muted-foreground">
+          Review and approve or reject team registrations
+        </p>
+      </div>
+      <RegistrationsClient teams={teams} />
+    </div>
+  );
+}

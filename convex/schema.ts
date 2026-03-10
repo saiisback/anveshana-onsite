@@ -1,0 +1,69 @@
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
+
+export default defineSchema({
+  helpRequests: defineTable({
+    teamId: v.string(),
+    teamName: v.string(),
+    category: v.union(
+      v.literal("Technical"),
+      v.literal("Logistics"),
+      v.literal("Judge"),
+      v.literal("Other")
+    ),
+    description: v.optional(v.string()),
+    urgency: v.union(
+      v.literal("Low"),
+      v.literal("Medium"),
+      v.literal("High")
+    ),
+    status: v.union(
+      v.literal("OPEN"),
+      v.literal("CLAIMED"),
+      v.literal("IN_PROGRESS"),
+      v.literal("RESOLVED")
+    ),
+    volunteerId: v.optional(v.string()),
+    volunteerName: v.optional(v.string()),
+    stallNumber: v.optional(v.number()),
+  })
+    .index("by_status", ["status"])
+    .index("by_team", ["teamId"])
+    .index("by_volunteer", ["volunteerId"]),
+
+  notifications: defineTable({
+    userId: v.string(),
+    title: v.string(),
+    message: v.string(),
+    type: v.union(
+      v.literal("help_request"),
+      v.literal("schedule"),
+      v.literal("announcement"),
+      v.literal("check_in"),
+      v.literal("general")
+    ),
+    read: v.boolean(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_unread", ["userId", "read"]),
+
+  checkIns: defineTable({
+    teamId: v.string(),
+    teamName: v.string(),
+    checkedInBy: v.string(),
+    checkedInByName: v.string(),
+  }).index("by_team", ["teamId"]),
+
+  announcements: defineTable({
+    title: v.string(),
+    message: v.string(),
+    targetRole: v.union(
+      v.literal("ALL"),
+      v.literal("PARTICIPANT"),
+      v.literal("VOLUNTEER"),
+      v.literal("JUDGE"),
+      v.literal("ADMIN")
+    ),
+    createdBy: v.string(),
+  }),
+});
