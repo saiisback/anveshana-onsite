@@ -69,7 +69,7 @@ export default function ParticipantNotificationsPage() {
     <div className="mx-auto max-w-2xl space-y-6 p-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Notifications</h1>
+          <h1 className="font-mono text-xl font-bold text-foreground sm:text-2xl">Notifications</h1>
           <p className="text-sm text-muted-foreground">
             Stay updated on your event activity
           </p>

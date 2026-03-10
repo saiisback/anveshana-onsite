@@ -65,13 +65,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-xl bg-indigo-500">
-            <FlaskConical className="size-7 text-white" />
+          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-xl bg-primary">
+            <FlaskConical className="size-7 text-primary-foreground" />
           </div>
-          <CardTitle className="text-xl">Welcome to Anveshana</CardTitle>
+          <CardTitle className="font-mono text-xl">Welcome to Anveshana</CardTitle>
           <CardDescription>
             Sign in to access the on-site portal
           </CardDescription>
@@ -105,7 +105,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <p className="text-sm text-red-500">{error}</p>
+              <p className="text-sm text-destructive-foreground">{error}</p>
             )}
 
             <Button
@@ -128,7 +128,7 @@ export default function LoginPage() {
             Don&apos;t have an account?{" "}
             <Link
               href="/register"
-              className="font-medium text-indigo-600 hover:underline"
+              className="font-medium text-primary hover:underline"
             >
               Register your team
             </Link>

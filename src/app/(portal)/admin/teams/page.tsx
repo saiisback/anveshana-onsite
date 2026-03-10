@@ -23,7 +23,7 @@ export default async function AdminTeamsPage() {
   return (
     <div className="space-y-6 p-4">
       <div>
-        <h1 className="text-2xl font-bold">Approved Teams</h1>
+        <h1 className="font-mono text-xl font-bold text-foreground sm:text-2xl">Approved Teams</h1>
         <p className="text-sm text-muted-foreground">
           All approved teams with stall assignments
         </p>

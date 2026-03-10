@@ -69,7 +69,7 @@ export default function ParticipantHelpPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-8 p-4 md:p-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Request Help</h1>
+        <h1 className="font-mono text-xl font-bold tracking-tight text-foreground sm:text-2xl">Request Help</h1>
         <p className="text-muted-foreground">
           Need assistance? Submit a request and a volunteer will come to your stall.
         </p>
