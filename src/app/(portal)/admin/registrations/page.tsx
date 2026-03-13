@@ -19,9 +19,17 @@ export default async function AdminRegistrationsPage() {
   const teams = pendingTeams.map((team) => ({
     id: team.id,
     name: team.name,
+    prototypeTitle: team.prototypeTitle,
+    description: team.description,
+    category: team.category,
     leadEmail:
       team.members.find((m) => m.roleInTeam === "lead")?.user.email ?? "—",
     membersCount: team.members.length,
+    members: team.members.map((m) => ({
+      name: m.user.name,
+      email: m.user.email,
+      roleInTeam: m.roleInTeam,
+    })),
     powerOutlet: team.powerOutlet,
     internetNeeded: team.internetNeeded,
     tableSize: team.tableSize,

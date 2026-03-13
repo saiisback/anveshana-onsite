@@ -13,18 +13,39 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle, Loader2, ExternalLink } from "lucide-react";
+import {
+  CheckCircle,
+  XCircle,
+  Loader2,
+  ExternalLink,
+  Users,
+  Zap,
+  Wifi,
+  Table2,
+  FileText,
+} from "lucide-react";
 import { toast } from "sonner";
+
+interface TeamMember {
+  name: string;
+  email: string;
+  roleInTeam: string;
+}
 
 interface PendingTeam {
   id: string;
   name: string;
+  prototypeTitle: string | null;
+  description: string | null;
+  category: string | null;
   leadEmail: string;
   membersCount: number;
+  members: TeamMember[];
   powerOutlet: boolean;
   internetNeeded: boolean;
   tableSize: string | null;
@@ -36,7 +57,7 @@ interface PendingTeam {
 export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
   const [pendingTeams, setPendingTeams] = useState(teams);
   const [loadingId, setLoadingId] = useState<string | null>(null);
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<PendingTeam | null>(null);
 
   async function handleApprove(teamId: string) {
     setLoadingId(teamId);
@@ -49,7 +70,10 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
         throw new Error(data.error || "Failed to approve team");
       }
       setPendingTeams((prev) => prev.filter((t) => t.id !== teamId));
-      toast.success("Team approved — password setup emails sent to all members");
+      setSelectedTeam(null);
+      toast.success(
+        "Team approved — password setup emails sent to all members"
+      );
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to approve team"
@@ -70,6 +94,7 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
         throw new Error(data.error || "Failed to reject team");
       }
       setPendingTeams((prev) => prev.filter((t) => t.id !== teamId));
+      setSelectedTeam(null);
       toast.success("Team rejected");
     } catch (error) {
       toast.error(
@@ -93,25 +118,28 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
     );
   }
 
+  const isLoading = selectedTeam ? loadingId === selectedTeam.id : false;
+
   return (
-    <div className="rounded-lg border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Team</TableHead>
-            <TableHead>Lead Email</TableHead>
-            <TableHead className="text-center">Members</TableHead>
-            <TableHead>Requirements</TableHead>
-            <TableHead>Payment</TableHead>
-            <TableHead>Submitted</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {pendingTeams.map((team) => {
-            const isLoading = loadingId === team.id;
-            return (
-              <TableRow key={team.id}>
+    <>
+      <div className="rounded-lg border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Team</TableHead>
+              <TableHead>Lead Email</TableHead>
+              <TableHead className="text-center">Members</TableHead>
+              <TableHead>Requirements</TableHead>
+              <TableHead>Submitted</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {pendingTeams.map((team) => (
+              <TableRow
+                key={team.id}
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => setSelectedTeam(team)}
+              >
                 <TableCell className="font-medium">{team.name}</TableCell>
                 <TableCell className="text-sm">{team.leadEmail}</TableCell>
                 <TableCell className="text-center">
@@ -130,101 +158,190 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
                       </Badge>
                     )}
                     {team.tableSize && (
-                      <Badge variant="secondary" className="text-xs capitalize">
+                      <Badge
+                        variant="secondary"
+                        className="text-xs capitalize"
+                      >
                         {team.tableSize}
                       </Badge>
                     )}
                   </div>
                 </TableCell>
-                <TableCell>
-                  {team.paymentScreenshot ? (
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setPreviewImage(team.paymentScreenshot)
-                        }
-                        className="relative size-12 overflow-hidden rounded border border-border hover:ring-2 hover:ring-primary transition-all cursor-pointer"
-                      >
-                        <Image
-                          src={team.paymentScreenshot}
-                          alt="Payment screenshot"
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
-                      </button>
-                      <a
-                        href={team.paymentScreenshot}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-muted-foreground hover:text-primary"
-                      >
-                        <ExternalLink className="size-3.5" />
-                      </a>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-muted-foreground">—</span>
-                  )}
-                </TableCell>
                 <TableCell className="text-sm">
                   {new Date(team.createdAt).toLocaleDateString()}
                 </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Button
-                      size="sm"
-                      onClick={() => handleApprove(team.id)}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <Loader2 className="mr-1.5 size-4 animate-spin" />
-                      ) : (
-                        <CheckCircle className="mr-1.5 size-4" />
-                      )}
-                      Approve
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleReject(team.id)}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <Loader2 className="mr-1.5 size-4 animate-spin" />
-                      ) : (
-                        <XCircle className="mr-1.5 size-4" />
-                      )}
-                      Reject
-                    </Button>
-                  </div>
-                </TableCell>
               </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       <Dialog
-        open={!!previewImage}
-        onOpenChange={(open) => !open && setPreviewImage(null)}
+        open={!!selectedTeam}
+        onOpenChange={(open) => !open && setSelectedTeam(null)}
       >
-        <DialogContent className="max-w-2xl">
-          <DialogTitle>Payment Screenshot</DialogTitle>
-          {previewImage && (
-            <div className="relative w-full max-h-[70vh] overflow-auto">
-              <Image
-                src={previewImage}
-                alt="Payment screenshot"
-                width={800}
-                height={600}
-                className="w-full h-auto rounded"
-                unoptimized
-              />
+        {selectedTeam && (
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="text-lg">{selectedTeam.name}</DialogTitle>
+              {selectedTeam.category && (
+                <Badge variant="outline" className="w-fit capitalize">
+                  {selectedTeam.category}
+                </Badge>
+              )}
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {/* Prototype Info */}
+              {(selectedTeam.prototypeTitle || selectedTeam.description) && (
+                <div className="space-y-1">
+                  {selectedTeam.prototypeTitle && (
+                    <p className="text-sm font-medium">
+                      {selectedTeam.prototypeTitle}
+                    </p>
+                  )}
+                  {selectedTeam.description && (
+                    <p className="text-sm text-muted-foreground">
+                      {selectedTeam.description}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {/* Members */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-1.5 text-sm font-medium">
+                  <Users className="size-4 text-primary" />
+                  Members ({selectedTeam.members.length})
+                </div>
+                <div className="space-y-1.5 rounded-md border p-3">
+                  {selectedTeam.members.map((m) => (
+                    <div
+                      key={m.email}
+                      className="flex items-center justify-between text-sm"
+                    >
+                      <span>{m.name}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">{m.email}</span>
+                        {m.roleInTeam === "lead" && (
+                          <Badge variant="default" className="text-[10px]">
+                            Lead
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Requirements */}
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Requirements</p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedTeam.powerOutlet && (
+                    <Badge variant="secondary" className="gap-1">
+                      <Zap className="size-3" /> Power Outlet
+                    </Badge>
+                  )}
+                  {selectedTeam.internetNeeded && (
+                    <Badge variant="secondary" className="gap-1">
+                      <Wifi className="size-3" /> Internet
+                    </Badge>
+                  )}
+                  {selectedTeam.tableSize && (
+                    <Badge variant="secondary" className="gap-1 capitalize">
+                      <Table2 className="size-3" /> {selectedTeam.tableSize}{" "}
+                      table
+                    </Badge>
+                  )}
+                  {!selectedTeam.powerOutlet &&
+                    !selectedTeam.internetNeeded &&
+                    !selectedTeam.tableSize && (
+                      <span className="text-sm text-muted-foreground">
+                        None
+                      </span>
+                    )}
+                </div>
+                {selectedTeam.additionalRequirements && (
+                  <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
+                    <FileText className="mt-0.5 size-3.5 shrink-0" />
+                    {selectedTeam.additionalRequirements}
+                  </div>
+                )}
+              </div>
+
+              {/* Payment Screenshot */}
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Payment Screenshot</p>
+                {selectedTeam.paymentScreenshot ? (
+                  <div className="space-y-2">
+                    <div className="relative w-full overflow-hidden rounded-md border">
+                      <Image
+                        src={selectedTeam.paymentScreenshot}
+                        alt="Payment screenshot"
+                        width={800}
+                        height={600}
+                        className="h-auto w-full"
+                        unoptimized
+                      />
+                    </div>
+                    <a
+                      href={selectedTeam.paymentScreenshot}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                    >
+                      Open full size <ExternalLink className="size-3" />
+                    </a>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No screenshot uploaded
+                  </p>
+                )}
+              </div>
+
+              {/* Submitted date */}
+              <p className="text-xs text-muted-foreground">
+                Submitted{" "}
+                {new Date(selectedTeam.createdAt).toLocaleString("en-IN", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+              </p>
+
+              {/* Actions */}
+              <div className="flex items-center gap-2 border-t pt-4">
+                <Button
+                  className="flex-1"
+                  onClick={() => handleApprove(selectedTeam.id)}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="mr-1.5 size-4 animate-spin" />
+                  ) : (
+                    <CheckCircle className="mr-1.5 size-4" />
+                  )}
+                  Approve
+                </Button>
+                <Button
+                  className="flex-1"
+                  variant="outline"
+                  onClick={() => handleReject(selectedTeam.id)}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="mr-1.5 size-4 animate-spin" />
+                  ) : (
+                    <XCircle className="mr-1.5 size-4" />
+                  )}
+                  Reject
+                </Button>
+              </div>
             </div>
-          )}
-        </DialogContent>
+          </DialogContent>
+        )}
       </Dialog>
-    </div>
+    </>
   );
 }
