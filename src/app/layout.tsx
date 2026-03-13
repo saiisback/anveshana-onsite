@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   title: "Anveshana 2026 | National-Level Prototype Exhibition",
   description:
     "A national-level prototype exhibition bringing together young innovators, mentors, and industry leaders to showcase groundbreaking science and engineering projects.",
+  icons: {
+    icon: "/anveshana.png",
+  },
 };
 
 export default function RootLayout({

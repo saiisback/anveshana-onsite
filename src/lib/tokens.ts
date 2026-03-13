@@ -1,7 +1,9 @@
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
+import { TOKEN_EXPIRY_MS } from "@/lib/constants";
+import type { PrismaClient } from "@/generated/prisma";
 
-const TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+type TransactionClient = Parameters<Parameters<PrismaClient["$transaction"]>[0]>[0];
 
 export function generateToken(): string {
   return crypto.randomBytes(32).toString("hex");
@@ -32,11 +34,12 @@ export async function validateInviteToken(token: string) {
   return invitation;
 }
 
-export async function generatePasswordSetupToken(userId: string) {
+export async function generatePasswordSetupToken(userId: string, tx?: TransactionClient) {
+  const client = tx ?? prisma;
   const token = generateToken();
   const expiresAt = new Date(Date.now() + TOKEN_EXPIRY_MS);
 
-  const setupToken = await prisma.passwordSetupToken.create({
+  const setupToken = await client.passwordSetupToken.create({
     data: { token, userId, expiresAt },
   });
 

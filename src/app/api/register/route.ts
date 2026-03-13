@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { validateInviteToken } from "@/lib/tokens";
+import { TEAM_ROLE_LEAD, TEAM_ROLE_MEMBER } from "@/lib/constants";
 
 const memberSchema = z.object({
   name: z.string().min(2),
@@ -52,22 +53,22 @@ export async function POST(request: Request) {
         },
       });
 
-      // Create additional member users (no password)
-      const memberUsers = await Promise.all(
-        parsed.members.map(async (member) => {
-          return tx.user.upsert({
-            where: { email: member.email },
-            update: { name: member.name, phone: member.phone },
-            create: {
-              name: member.name,
-              email: member.email,
-              emailVerified: true,
-              phone: member.phone,
-              role: "PARTICIPANT",
-            },
-          });
-        })
-      );
+      // Create additional member users sequentially to avoid deadlocks
+      const memberUsers = [];
+      for (const member of parsed.members) {
+        const memberUser = await tx.user.upsert({
+          where: { email: member.email },
+          update: { name: member.name, phone: member.phone },
+          create: {
+            name: member.name,
+            email: member.email,
+            emailVerified: true,
+            phone: member.phone,
+            role: "PARTICIPANT",
+          },
+        });
+        memberUsers.push(memberUser);
+      }
 
       // Create team
       const createdTeam = await tx.team.create({
@@ -87,7 +88,7 @@ export async function POST(request: Request) {
         data: {
           teamId: createdTeam.id,
           userId: leadUser.id,
-          roleInTeam: "lead",
+          roleInTeam: TEAM_ROLE_LEAD,
         },
       });
 
@@ -96,7 +97,7 @@ export async function POST(request: Request) {
           data: {
             teamId: createdTeam.id,
             userId: memberUser.id,
-            roleInTeam: "member",
+            roleInTeam: TEAM_ROLE_MEMBER,
           },
         });
       }

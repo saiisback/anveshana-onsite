@@ -37,7 +37,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-type Role = "PARTICIPANT" | "VOLUNTEER" | "ADMIN";
+import { Role } from "@/generated/prisma/enums";
 
 interface NavItem {
   label: string;
@@ -46,7 +46,7 @@ interface NavItem {
   locked?: boolean;
 }
 
-const navItems: Record<Role, NavItem[]> = {
+const navItems: Partial<Record<Role, NavItem[]>> = {
   PARTICIPANT: [
     { label: "Home", href: "/participant", icon: <LayoutDashboard className="size-5" /> },
     { label: "Schedule", href: "/participant/schedule", icon: <Calendar className="size-5" />, locked: true },
@@ -74,7 +74,7 @@ const navItems: Record<Role, NavItem[]> = {
   ],
 };
 
-const useBottomNav = (role: Role) => role === "PARTICIPANT" || role === "VOLUNTEER";
+const useBottomNav = (role: Role) => role === "PARTICIPANT" || role === "VOLUNTEER" || role === "JUDGE";
 
 function isNavActive(pathname: string, href: string): boolean {
   return pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
@@ -146,7 +146,7 @@ function SidebarContent({
   pathname,
   onNavigate,
 }: SidebarProps & { pathname: string; onNavigate?: () => void }) {
-  const items = navItems[role];
+  const items = navItems[role] ?? [];
   const router = useRouter();
 
   return (
@@ -190,7 +190,7 @@ function SidebarContent({
 }
 
 function BottomNavBar({ role, pathname }: { role: Role; pathname: string }) {
-  const items = navItems[role];
+  const items = navItems[role] ?? [];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-sidebar lg:hidden">

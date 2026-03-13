@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/tooltip";
 import CardTemplate, { type CardTemplateRef, type CardVariant } from "@/components/card-template";
 import { Download, Link, Check } from "lucide-react";
-import { encodeLanyardData } from "@/lib/utils";
+import { encodeLanyardData } from "@/lib/lanyard";
 
 // X (Twitter) icon component
 function XIcon({ className }: { className?: string }) {

@@ -1,8 +1,9 @@
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { auth, type Session } from "@/lib/auth";
+import { Role } from "@/generated/prisma/enums";
 
-export type UserRole = "PARTICIPANT" | "VOLUNTEER" | "ADMIN";
+export type { Role };
 
 export async function getSession() {
   const session = await auth.api.getSession({
@@ -11,9 +12,9 @@ export async function getSession() {
   return session;
 }
 
-export function getUserRole(session: Session): UserRole {
+export function getUserRole(session: Session): Role {
   const role = (session.user as { role?: string })?.role;
-  if (role === "ADMIN" || role === "VOLUNTEER" || role === "PARTICIPANT") {
+  if (role === "ADMIN" || role === "VOLUNTEER" || role === "PARTICIPANT" || role === "JUDGE") {
     return role;
   }
   return "PARTICIPANT";

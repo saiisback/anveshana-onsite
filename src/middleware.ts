@@ -36,11 +36,19 @@ export async function middleware(req: NextRequest) {
     "/admin": "ADMIN",
     "/volunteer": "VOLUNTEER",
     "/participant": "PARTICIPANT",
+    "/judge": "JUDGE",
   };
 
   for (const [prefix, requiredRole] of Object.entries(roleRouteMap)) {
     if (pathname.startsWith(prefix) && role !== requiredRole) {
-      return NextResponse.redirect(new URL("/login", req.url));
+      // Redirect to the correct dashboard for their role instead of login
+      const roleDashboard: Record<string, string> = {
+        ADMIN: "/admin",
+        VOLUNTEER: "/volunteer",
+        PARTICIPANT: "/participant",
+        JUDGE: "/judge",
+      };
+      return NextResponse.redirect(new URL(roleDashboard[role] || "/login", req.url));
     }
   }
 
@@ -48,5 +56,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/participant/:path*", "/volunteer/:path*", "/admin/:path*"],
+  matcher: ["/participant/:path*", "/volunteer/:path*", "/admin/:path*", "/judge/:path*"],
 };

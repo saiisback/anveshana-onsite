@@ -3,10 +3,11 @@ import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { validatePasswordSetupToken } from "@/lib/tokens";
 import { hashPassword } from "@/lib/auth";
+import { MIN_PASSWORD_LENGTH } from "@/lib/constants";
 
 const schema = z.object({
   token: z.string().min(1),
-  password: z.string().min(6),
+  password: z.string().min(MIN_PASSWORD_LENGTH),
 });
 
 export async function POST(request: Request) {
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { error: "Password must be at least 6 characters" },
+        { error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters` },
         { status: 400 }
       );
     }

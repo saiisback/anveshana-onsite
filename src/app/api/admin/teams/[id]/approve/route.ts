@@ -3,21 +3,56 @@ import prisma from "@/lib/prisma";
 import { sendEmailsInBatches } from "@/lib/resend";
 import { passwordSetupEmail } from "@/lib/email-templates";
 import { generatePasswordSetupToken } from "@/lib/tokens";
-import { requireAdmin } from "@/lib/auth-server";
-import { APP_URL } from "@/lib/constants";
+import { withAdmin } from "@/lib/admin-handler";
+import { APP_URL, EVENT_NAME } from "@/lib/constants";
 
-export async function POST(
+export const POST = withAdmin(async (
   _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { error } = await requireAdmin();
-  if (error) return error;
+  { params }: { params: Promise<Record<string, string>> }
+) => {
+  const { id } = await params;
 
-  try {
-    const { id } = await params;
+  const team = await prisma.team.findUnique({
+    where: { id },
+    include: {
+      members: {
+        include: {
+          user: { select: { id: true, name: true, email: true } },
+        },
+      },
+    },
+  });
 
-    const team = await prisma.team.findUnique({
+  if (!team) {
+    return NextResponse.json({ error: "Team not found" }, { status: 404 });
+  }
+
+  if (team.status !== "PENDING") {
+    return NextResponse.json(
+      { error: "Team is not in PENDING status" },
+      { status: 400 }
+    );
+  }
+
+  // Generate QR code string using team ID
+  const qrCode = `anveshana-team-${id}`;
+
+  // Wrap stall number assignment + team update + token generation in a transaction
+  const { updatedTeam, emailBatch } = await prisma.$transaction(async (tx) => {
+    const lastStall = await tx.team.findFirst({
+      where: { stallNumber: { not: null } },
+      orderBy: { stallNumber: "desc" },
+      select: { stallNumber: true },
+    });
+    const nextStallNumber = (lastStall?.stallNumber ?? 0) + 1;
+
+    const updated = await tx.team.update({
       where: { id },
+      data: {
+        status: "APPROVED",
+        stallNumber: nextStallNumber,
+        qrCode,
+      },
       include: {
         members: {
           include: {
@@ -27,70 +62,25 @@ export async function POST(
       },
     });
 
-    if (!team) {
-      return NextResponse.json({ error: "Team not found" }, { status: 404 });
+    // Generate password setup tokens inside the transaction
+    const batch = [];
+    for (const member of updated.members) {
+      const setupToken = await generatePasswordSetupToken(member.user.id, tx);
+      batch.push({
+        to: member.user.email,
+        subject: `Team Approved — Set Your Password | ${EVENT_NAME}`,
+        html: passwordSetupEmail(member.user.name, `${APP_URL}/set-password?token=${setupToken.token}`),
+      });
     }
 
-    if (team.status !== "PENDING") {
-      return NextResponse.json(
-        { error: "Team is not in PENDING status" },
-        { status: 400 }
-      );
-    }
+    return { updatedTeam: updated, emailBatch: batch };
+  });
 
-    // Generate QR code string using team ID
-    const qrCode = `anveshana-team-${id}`;
+  const emailResult = await sendEmailsInBatches(emailBatch);
 
-    // Wrap stall number assignment + team update in a transaction to prevent race conditions
-    const updatedTeam = await prisma.$transaction(async (tx) => {
-      const lastStall = await tx.team.findFirst({
-        where: { stallNumber: { not: null } },
-        orderBy: { stallNumber: "desc" },
-        select: { stallNumber: true },
-      });
-      const nextStallNumber = (lastStall?.stallNumber ?? 0) + 1;
-
-      return tx.team.update({
-        where: { id },
-        data: {
-          status: "APPROVED",
-          stallNumber: nextStallNumber,
-          qrCode,
-        },
-        include: {
-          members: {
-            include: {
-              user: { select: { id: true, name: true, email: true } },
-            },
-          },
-        },
-      });
-    });
-
-    // Generate password setup tokens for ALL members and send emails
-    const emailBatch = await Promise.all(
-      updatedTeam.members.map(async (member) => {
-        const setupToken = await generatePasswordSetupToken(member.user.id);
-        return {
-          to: member.user.email,
-          subject: `Team Approved — Set Your Password | Anveshana 3.0`,
-          html: passwordSetupEmail(member.user.name, `${APP_URL}/set-password?token=${setupToken.token}`),
-        };
-      })
-    );
-
-    const emailResult = await sendEmailsInBatches(emailBatch);
-
-    return NextResponse.json({
-      message: "Team approved successfully",
-      team: updatedTeam,
-      emailsSent: emailResult.success,
-    });
-  } catch (error) {
-    console.error("Approve error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
-  }
-}
+  return NextResponse.json({
+    message: "Team approved successfully",
+    team: updatedTeam,
+    emailsSent: emailResult.success,
+  });
+});

@@ -1,4 +1,5 @@
 import { escapeHtml } from "@/lib/utils";
+import { EVENT_NAME } from "@/lib/constants";
 
 const baseLayout = (content: string) => `
 <!DOCTYPE html>
@@ -7,7 +8,7 @@ const baseLayout = (content: string) => `
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Anveshana 3.0</title>
+  <title>${escapeHtml(EVENT_NAME)}</title>
   <!--[if mso]>
   <noscript>
     <xml>
@@ -86,7 +87,7 @@ const baseLayout = (content: string) => `
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <p style="margin: 0 0 8px; font-size: 13px; color: #525252;">Anveshana 3.0</p>
+                    <p style="margin: 0 0 8px; font-size: 13px; color: #525252;">${escapeHtml(EVENT_NAME)}</p>
                     <p style="margin: 0; font-size: 11px; color: #3f3f3f;">National Prototype Competition</p>
                   </td>
                 </tr>
@@ -111,7 +112,7 @@ const ctaButton = (href: string, label: string, color: string = "#6366f1") => `
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
     <tr>
       <td align="center" style="padding: 28px 0;">
-        <a href="${href}" target="_blank" style="display: inline-block; padding: 14px 40px; background: ${color}; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 15px; letter-spacing: 0.3px; box-shadow: 0 4px 14px ${color}44;">
+        <a href="${escapeHtml(href)}" target="_blank" style="display: inline-block; padding: 14px 40px; background: ${escapeHtml(color)}; color: #ffffff; text-decoration: none; border-radius: 10px; font-weight: 700; font-size: 15px; letter-spacing: 0.3px; box-shadow: 0 4px 14px ${escapeHtml(color)}44;">
           ${label}
         </a>
       </td>
@@ -175,12 +176,12 @@ export function invitationEmail(registerUrl: string) {
 
     <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa; text-align: center; letter-spacing: -0.3px;">You're Invited!</h2>
     <p style="margin: 0 0 24px; font-size: 14px; color: #a3a3a3; text-align: center; line-height: 1.7;">
-      You've been specially selected to RSVP your team for <strong style="color: #e5e5e5;">Anveshana 3.0</strong> — India's premier national-level prototype competition.
+      You've been specially selected to RSVP your team for <strong style="color: #e5e5e5;">${escapeHtml(EVENT_NAME)}</strong> — India's premier national-level prototype competition.
     </p>
 
     ${infoBox(`
-      ${infoRow("&#x1F4C5;", "Event", "Anveshana 3.0")}
-${infoRow("&#x23F3;", "Link Expires", "7 Days")}
+      ${infoRow("&#x1F4C5;", "Event", escapeHtml(EVENT_NAME))}
+      ${infoRow("&#x23F3;", "Link Expires", "7 Days")}
     `)}
 
     ${ctaButton(registerUrl, "&#x1F680;&nbsp;&nbsp;RSVP Your Team")}
@@ -211,7 +212,7 @@ export function teamApprovedEmail(teamName: string, stallNumber: number, leadNam
 
     <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa; text-align: center;">Congratulations, ${safeLeadName}!</h2>
     <p style="margin: 0 0 6px; font-size: 14px; color: #a3a3a3; text-align: center; line-height: 1.7;">
-      Your team has been ${badge("APPROVED", "success")} for Anveshana 3.0.
+      Your team has been ${badge("APPROVED", "success")} for ${escapeHtml(EVENT_NAME)}.
     </p>
     <p style="margin: 0 0 24px; font-size: 14px; color: #a3a3a3; text-align: center; line-height: 1.7;">
       Get ready to showcase your innovation!
@@ -235,7 +236,7 @@ export function teamRejectedEmail(teamName: string, leadName: string) {
   return baseLayout(`
     <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa;">Hi ${safeLeadName},</h2>
     <p style="margin: 0 0 20px; font-size: 14px; color: #a3a3a3; line-height: 1.7;">
-      We appreciate your interest in Anveshana 3.0. After careful review, your team <strong style="color: #e5e5e5;">${safeTeamName}</strong> has been ${badge("NOT SELECTED", "error")} this year.
+      We appreciate your interest in ${escapeHtml(EVENT_NAME)}. After careful review, your team <strong style="color: #e5e5e5;">${safeTeamName}</strong> has been ${badge("NOT SELECTED", "error")} this year.
     </p>
 
     ${infoBox(`

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
-import { getSession, getUserRole } from "@/lib/auth-server";
+import { getSession, getUserRole, type Role } from "@/lib/auth-server";
 import { cn } from "@/lib/utils";
 
 export default async function PortalLayout({
@@ -14,8 +14,8 @@ export default async function PortalLayout({
     redirect("/login");
   }
 
-  const castRole = getUserRole(session);
-  const hasBottomNav = castRole === "PARTICIPANT" || castRole === "VOLUNTEER";
+  const castRole: Role = getUserRole(session);
+  const hasBottomNav = castRole === "PARTICIPANT" || castRole === "VOLUNTEER" || castRole === "JUDGE";
 
   return (
     <div className="min-h-screen bg-background text-foreground">

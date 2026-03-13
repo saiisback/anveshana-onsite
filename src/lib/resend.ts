@@ -1,6 +1,7 @@
 import { Resend } from "resend";
+import { EMAIL_BATCH_SIZE } from "@/lib/constants";
 
-export const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "Anveshana <onboarding@resend.dev>";
 
@@ -35,38 +36,29 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions) {
 
 /**
  * Send email to multiple recipients using batch API (counts as 1 API call).
- * Max 100 recipients per batch. Uses direct fetch to avoid SDK bundling issues.
+ * Max 100 recipients per batch.
  */
-export async function sendBatchEmails(
+async function sendBatchEmails(
   emails: { to: string; subject: string; html: string }[]
 ) {
   if (emails.length === 0) return { success: true, data: [] };
 
   try {
-    const response = await fetch("https://api.resend.com/emails/batch", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(
-        emails.map((e) => ({
-          from: FROM_EMAIL,
-          to: e.to,
-          subject: e.subject,
-          html: e.html,
-        }))
-      ),
-    });
+    const { data, error } = await resend.batch.send(
+      emails.map((e) => ({
+        from: FROM_EMAIL,
+        to: e.to,
+        subject: e.subject,
+        html: e.html,
+      }))
+    );
 
-    const result = await response.json();
-
-    if (!response.ok) {
-      console.error("Resend batch error:", JSON.stringify(result));
-      return { success: false, error: result };
+    if (error) {
+      console.error("Resend batch error:", JSON.stringify(error));
+      return { success: false, error };
     }
 
-    return { success: true, data: result };
+    return { success: true, data };
   } catch (error) {
     console.error("Batch email send failed:", JSON.stringify(error, Object.getOwnPropertyNames(error as object)));
     return { success: false, error };
@@ -74,15 +66,15 @@ export async function sendBatchEmails(
 }
 
 /**
- * Send emails in batches of 100 (Resend limit).
+ * Send emails in batches of EMAIL_BATCH_SIZE (Resend limit).
  * Returns combined results from all batches.
  */
 export async function sendEmailsInBatches(
   emails: { to: string; subject: string; html: string }[]
 ) {
   const batches = [];
-  for (let i = 0; i < emails.length; i += 100) {
-    batches.push(sendBatchEmails(emails.slice(i, i + 100)));
+  for (let i = 0; i < emails.length; i += EMAIL_BATCH_SIZE) {
+    batches.push(sendBatchEmails(emails.slice(i, i + EMAIL_BATCH_SIZE)));
   }
   const results = await Promise.all(batches);
   const failed = results.filter((r) => !r.success);
