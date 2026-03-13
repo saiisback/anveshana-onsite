@@ -1,133 +1,117 @@
 import { NextResponse } from "next/server";
-import { hash } from "bcryptjs";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
+import { validateInviteToken } from "@/lib/tokens";
 
 const memberSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email"),
-  phone: z.string().optional(),
-  roleInTeam: z.string().optional(),
+  name: z.string().min(2),
+  email: z.string().email(),
+  phone: z.string().min(10),
 });
 
 const registerSchema = z.object({
-  teamName: z.string().min(1, "Team name is required"),
-  prototypeTitle: z.string().min(1, "Prototype title is required"),
-  description: z.string().min(1, "Description is required"),
-  category: z.string().min(1, "Category is required"),
-  requirements: z.string().optional(),
-  members: z
-    .array(memberSchema)
-    .min(1, "At least one team member is required"),
+  token: z.string().min(1),
+  leadName: z.string().min(2),
+  leadPhone: z.string().min(10),
+  members: z.array(memberSchema).max(3),
+  powerOutlet: z.boolean(),
+  internetNeeded: z.boolean(),
+  tableSize: z.enum(["small", "medium", "large"]),
+  additionalRequirements: z.string().max(300).optional(),
+  paymentScreenshot: z.string().min(1),
 });
-
-const DEFAULT_PASSWORD = "anveshana2026";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     const parsed = registerSchema.parse(body);
 
-    const existingTeam = await prisma.team.findUnique({
-      where: { name: parsed.teamName },
-    });
-
-    if (existingTeam) {
+    // Validate invitation token
+    const invitation = await validateInviteToken(parsed.token);
+    if (!invitation) {
       return NextResponse.json(
-        { error: "A team with this name already exists" },
-        { status: 409 }
+        { error: "Invalid or expired invitation token" },
+        { status: 400 }
       );
     }
 
-    const hashedPassword = await hash(DEFAULT_PASSWORD, 12);
+    // Generate a short ID for team name
+    const shortId = invitation.id.slice(-6).toUpperCase();
 
     const team = await prisma.$transaction(async (tx) => {
-      // Create User records for each member
-      const users = await Promise.all(
+      // Create lead user (no password)
+      const leadUser = await tx.user.upsert({
+        where: { email: invitation.email },
+        update: { name: parsed.leadName, phone: parsed.leadPhone },
+        create: {
+          name: parsed.leadName,
+          email: invitation.email,
+          emailVerified: true,
+          phone: parsed.leadPhone,
+          role: "PARTICIPANT",
+        },
+      });
+
+      // Create additional member users (no password)
+      const memberUsers = await Promise.all(
         parsed.members.map(async (member) => {
-          const existingUser = await tx.user.findUnique({
+          return tx.user.upsert({
             where: { email: member.email },
-          });
-
-          if (existingUser) {
-            return existingUser;
-          }
-
-          const user = await tx.user.create({
-            data: {
+            update: { name: member.name, phone: member.phone },
+            create: {
               name: member.name,
               email: member.email,
               emailVerified: true,
-              phone: member.phone ?? null,
-              password: hashedPassword,
+              phone: member.phone,
               role: "PARTICIPANT",
             },
           });
-
-          // Create credential account for BetterAuth
-          await tx.account.create({
-            data: {
-              userId: user.id,
-              accountId: user.id,
-              providerId: "credential",
-              password: hashedPassword,
-            },
-          });
-
-          return user;
         })
       );
 
-      // Create Team record
+      // Create team
       const createdTeam = await tx.team.create({
         data: {
-          name: parsed.teamName,
-          prototypeTitle: parsed.prototypeTitle,
-          description: parsed.description,
-          category: parsed.category,
-          requirements: parsed.requirements ?? null,
+          name: `Team-${shortId}`,
           status: "PENDING",
+          powerOutlet: parsed.powerOutlet,
+          internetNeeded: parsed.internetNeeded,
+          tableSize: parsed.tableSize,
+          additionalRequirements: parsed.additionalRequirements ?? null,
+          paymentScreenshot: parsed.paymentScreenshot,
         },
       });
 
-      // Create TeamMember records - first member is the lead
-      await Promise.all(
-        users.map((user, index) =>
-          tx.teamMember.create({
-            data: {
-              teamId: createdTeam.id,
-              userId: user.id,
-              roleInTeam:
-                index === 0
-                  ? "lead"
-                  : parsed.members[index].roleInTeam || "member",
-            },
-          })
-        )
-      );
+      // Create team members — lead first
+      await tx.teamMember.create({
+        data: {
+          teamId: createdTeam.id,
+          userId: leadUser.id,
+          roleInTeam: "lead",
+        },
+      });
 
-      return tx.team.findUnique({
-        where: { id: createdTeam.id },
-        include: {
-          members: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  name: true,
-                  email: true,
-                  phone: true,
-                  role: true,
-                },
-              },
-            },
+      for (const memberUser of memberUsers) {
+        await tx.teamMember.create({
+          data: {
+            teamId: createdTeam.id,
+            userId: memberUser.id,
+            roleInTeam: "member",
           },
-        },
+        });
+      }
+
+      // Mark invitation as used and link to team
+      await tx.invitation.update({
+        where: { id: invitation.id },
+        data: { status: "USED", teamId: createdTeam.id },
       });
+
+      return createdTeam;
     });
 
     return NextResponse.json(
-      { message: "Team registered successfully", team },
+      { message: "Team registered successfully", teamId: team.id },
       { status: 201 }
     );
   } catch (error) {

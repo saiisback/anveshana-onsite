@@ -45,7 +45,7 @@ export default function HeroSection() {
                                 speedSegment={0.3}
                                 delay={0.5}
                                 as="p"
-                                className="mt-8 max-w-2xl text-pretty text-lg text-muted-foreground bg-black p-1 rounded-md">
+                                className="mt-8 max-w-2xl text-pretty text-lg text-muted-foreground text-white p-1 rounded-md">
                                 A national-level prototype exhibition bringing together young innovators, mentors, and industry leaders to showcase groundbreaking science and engineering projects.
                             </TextEffect>
                             <AnimatedGroup
@@ -66,16 +66,6 @@ export default function HeroSection() {
                                     asChild
                                     size="lg"
                                     className="px-5 text-base">
-                                    <Link href="/register">
-                                        <span className="text-nowrap">Register Your Team</span>
-                                    </Link>
-                                </Button>
-                                <Button
-                                    key={2}
-                                    asChild
-                                    size="lg"
-                                    variant="ghost"
-                                    className="px-5 text-base bg-black/30 backdrop-blur-sm hover:bg-black/40">
                                     <Link href="/login">
                                         <span className="text-nowrap">Login</span>
                                     </Link>

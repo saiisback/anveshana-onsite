@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { sendTemplateEmail, TEMPLATE_IDS } from "@/lib/resend";
 
 export async function POST(
   _request: Request,
@@ -8,7 +9,17 @@ export async function POST(
   try {
     const { id } = await params;
 
-    const team = await prisma.team.findUnique({ where: { id } });
+    const team = await prisma.team.findUnique({
+      where: { id },
+      include: {
+        members: {
+          where: { roleInTeam: "lead" },
+          include: {
+            user: { select: { name: true, email: true } },
+          },
+        },
+      },
+    });
     if (!team) {
       return NextResponse.json({ error: "Team not found" }, { status: 404 });
     }
@@ -24,6 +35,20 @@ export async function POST(
       where: { id },
       data: { status: "REJECTED" },
     });
+
+    // Send rejection email to team lead only
+    const lead = team.members[0];
+    if (lead?.user.email) {
+      sendTemplateEmail({
+        to: lead.user.email,
+        subject: `Team "${team.name}" — Anveshana 2026 Update`,
+        templateId: TEMPLATE_IDS.teamRejected,
+        data: {
+          LEAD_NAME: lead.user.name,
+          TEAM_NAME: team.name,
+        },
+      }).catch((err) => console.error("Rejection email failed:", err));
+    }
 
     return NextResponse.json({
       message: "Team rejected",

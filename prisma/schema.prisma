@@ -26,6 +26,18 @@ enum JudgeAssignmentStatus {
   COMPLETED
 }
 
+enum InvitationStatus {
+  PENDING
+  USED
+  EXPIRED
+}
+
+enum TokenStatus {
+  PENDING
+  USED
+  EXPIRED
+}
+
 model User {
   id              String            @id @default(cuid())
   name            String
@@ -42,6 +54,7 @@ model User {
   volunteerZones  VolunteerZone[]
   sessions        Session[]
   accounts        Account[]
+  passwordSetupTokens PasswordSetupToken[]
 }
 
 model Session {
@@ -83,20 +96,49 @@ model Verification {
 }
 
 model Team {
-  id              String        @id @default(cuid())
-  name            String        @unique
-  prototypeTitle  String
-  description     String
-  category        String
-  requirements    String?
-  stallNumber     Int?          @unique
-  status          TeamStatus    @default(PENDING)
-  qrCode          String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  members         TeamMember[]
-  judgeAssignments JudgeAssignment[]
-  stallLocation   StallLocation?
+  id                     String        @id @default(cuid())
+  name                   String        @unique
+  prototypeTitle         String?
+  description            String?
+  category               String?
+  requirements           String?
+  stallNumber            Int?          @unique
+  status                 TeamStatus    @default(PENDING)
+  qrCode                 String?
+  paymentScreenshot      String?
+  powerOutlet            Boolean       @default(false)
+  internetNeeded         Boolean       @default(false)
+  tableSize              String?
+  additionalRequirements String?
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+  members                TeamMember[]
+  judgeAssignments       JudgeAssignment[]
+  stallLocation          StallLocation?
+  invitation             Invitation?
+}
+
+model Invitation {
+  id        String           @id @default(cuid())
+  email     String
+  token     String           @unique
+  expiresAt DateTime
+  status    InvitationStatus @default(PENDING)
+  teamId    String?          @unique
+  team      Team?            @relation(fields: [teamId], references: [id])
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+model PasswordSetupToken {
+  id        String      @id @default(cuid())
+  token     String      @unique
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  status    TokenStatus @default(PENDING)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }
 
 model TeamMember {

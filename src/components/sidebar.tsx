@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
@@ -25,7 +26,7 @@ import {
   Settings,
   LogOut,
   Menu,
-  FlaskConical,
+  Mail,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -54,6 +55,7 @@ const navItems: Record<Role, NavItem[]> = {
   ],
   ADMIN: [
     { label: "Dashboard", href: "/admin", icon: <LayoutDashboard className="size-5" /> },
+    { label: "Invitations", href: "/admin/invitations", icon: <Mail className="size-5" /> },
     { label: "Registrations", href: "/admin/registrations", icon: <Users className="size-5" /> },
     { label: "Teams", href: "/admin/teams", icon: <Users className="size-5" /> },
     { label: "Judges", href: "/admin/judges", icon: <Gavel className="size-5" /> },
@@ -120,9 +122,7 @@ function SidebarContent({
     <div className="flex h-full flex-col">
       {/* Branding */}
       <div className="flex items-center gap-3 border-b border-border px-4 py-5">
-        <div className="flex size-9 items-center justify-center rounded-lg bg-primary">
-          <FlaskConical className="size-5 text-primary-foreground" />
-        </div>
+        <Image src="/anveshana.png" alt="Anveshana" width={36} height={36} className="rounded-lg" />
         <div>
           <h1 className="font-mono text-lg font-bold text-foreground">Anveshana</h1>
           <p className="text-xs text-muted-foreground">On-Site Portal</p>
@@ -231,7 +231,7 @@ export function Sidebar({ role, userName }: SidebarProps) {
             </SheetContent>
           </Sheet>
           <div className="ml-3 flex items-center gap-2">
-            <FlaskConical className="size-5 text-primary" />
+            <Image src="/anveshana.png" alt="Anveshana" width={24} height={24} className="rounded" />
             <span className="font-mono text-sm font-bold text-foreground">Anveshana</span>
           </div>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 import { signIn, useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FlaskConical, Loader2 } from "lucide-react";
-import Link from "next/link";
 
 const roleRedirects: Record<string, string> = {
   ADMIN: "/admin",
@@ -32,11 +32,12 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   // Redirect if already logged in
-  if (!isPending && session) {
-    const role = (session.user as { role?: string })?.role ?? "PARTICIPANT";
-    router.replace(roleRedirects[role] ?? "/participant");
-    return null;
-  }
+  useEffect(() => {
+    if (!isPending && session) {
+      const role = (session.user as { role?: string })?.role ?? "PARTICIPANT";
+      router.replace(roleRedirects[role] ?? "/participant");
+    }
+  }, [isPending, session, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -64,13 +65,19 @@ export default function LoginPage() {
     }
   }
 
+  if (isPending || session) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="size-6 animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <Card className="w-full max-w-md">
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <Card className="w-full max-w-md bg-black">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-xl bg-primary">
-            <FlaskConical className="size-7 text-primary-foreground" />
-          </div>
+          <Image src="/anveshana.png" alt="Anveshana" width={100} height={100} className="mx-auto mb-4" />
           <CardTitle className="font-mono text-xl">Welcome to Anveshana</CardTitle>
           <CardDescription>
             Sign in to access the on-site portal
@@ -125,13 +132,7 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{" "}
-            <Link
-              href="/register"
-              className="font-medium text-primary hover:underline"
-            >
-              Register your team
-            </Link>
+            Check your email for an invite link to register.
           </p>
         </CardContent>
       </Card>

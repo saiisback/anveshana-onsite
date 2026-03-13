@@ -4,10 +4,6 @@ import Image from "next/image";
 
 const links = [
     {
-        title: 'Register',
-        href: '/register',
-    },
-    {
         title: 'Login',
         href: '/login',
     },

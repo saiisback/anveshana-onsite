@@ -24,7 +24,7 @@ export default function CallToAction() {
                         delay={0.3}
                         as="p"
                         className="mt-4 text-muted-foreground">
-                        We have limited availability, register your team now.
+                        Already invited? Login to access the portal.
                     </TextEffect>
                     <AnimatedGroup
                         triggerOnView
@@ -44,15 +44,6 @@ export default function CallToAction() {
                         <Button
                             asChild
                             size="lg">
-                            <Link href="/register">
-                                <span>Register</span>
-                            </Link>
-                        </Button>
-
-                        <Button
-                            asChild
-                            size="lg"
-                            variant="outline">
                             <Link href="/login">
                                 <span>Login</span>
                             </Link>

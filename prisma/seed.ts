@@ -50,29 +50,36 @@ async function main() {
   });
   const prisma = new PrismaClient({ adapter });
 
+  // Delete all existing judge, volunteer, and admin users and their related data
+  console.log("Cleaning up existing users...");
+
+  // Delete sessions, accounts, password setup tokens for non-participant users
+  const usersToDelete = await prisma.user.findMany({
+    where: {
+      role: { in: ["ADMIN", "JUDGE", "VOLUNTEER"] },
+    },
+    select: { id: true, email: true },
+  });
+
+  if (usersToDelete.length > 0) {
+    const userIds = usersToDelete.map((u) => u.id);
+    await prisma.passwordSetupToken.deleteMany({ where: { userId: { in: userIds } } });
+    await prisma.session.deleteMany({ where: { userId: { in: userIds } } });
+    await prisma.judgeAssignment.deleteMany({ where: { judgeId: { in: userIds } } });
+    await prisma.volunteerZone.deleteMany({ where: { volunteerId: { in: userIds } } });
+    await prisma.account.deleteMany({ where: { userId: { in: userIds } } });
+    await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+    console.log(`Deleted ${usersToDelete.length} existing admin/judge/volunteer users:`, usersToDelete.map((u) => u.email));
+  }
+
+  // Create the single admin account
   const admin = await createUserWithAccount(prisma, {
-    name: "Admin",
-    email: "admin@anveshana.in",
-    password: "admin123",
+    name: "IIC BICEP Admin",
+    email: "iicbicep@bmsit.in",
+    password: "iicbicep2026",
     role: "ADMIN",
   });
   console.log("Created admin user:", admin.email);
-
-  const volunteer = await createUserWithAccount(prisma, {
-    name: "Volunteer 1",
-    email: "volunteer@anveshana.in",
-    password: "volunteer123",
-    role: "VOLUNTEER",
-  });
-  console.log("Created volunteer user:", volunteer.email);
-
-  const judge = await createUserWithAccount(prisma, {
-    name: "Judge 1",
-    email: "judge@anveshana.in",
-    password: "judge123",
-    role: "JUDGE",
-  });
-  console.log("Created judge user:", judge.email);
 
   console.log("Seeding complete!");
 }

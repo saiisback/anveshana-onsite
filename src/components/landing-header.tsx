@@ -19,7 +19,7 @@ export const HeroHeader = () => {
                                 href="/"
                                 aria-label="home"
                                 className="flex items-center space-x-2">
-                                <Image src="/anveshana.png" alt="Anveshana'26" width={30} height={30} />
+                                <Image src="/anveshana.png" alt="Anveshana'26" width={36} height={36} className="rounded-md" />
                                 <span className='font-mono'>Anveshana</span>
                             </Link>
 

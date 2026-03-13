@@ -19,16 +19,23 @@ export default async function AdminRegistrationsPage() {
   const teams = pendingTeams.map((team) => ({
     id: team.id,
     name: team.name,
-    prototypeTitle: team.prototypeTitle,
-    category: team.category,
+    leadEmail:
+      team.members.find((m) => m.roleInTeam === "lead")?.user.email ?? "—",
     membersCount: team.members.length,
+    powerOutlet: team.powerOutlet,
+    internetNeeded: team.internetNeeded,
+    tableSize: team.tableSize,
+    additionalRequirements: team.additionalRequirements,
+    paymentScreenshot: team.paymentScreenshot,
     createdAt: team.createdAt.toISOString(),
   }));
 
   return (
     <div className="space-y-6 p-4">
       <div>
-        <h1 className="font-mono text-xl font-bold text-foreground sm:text-2xl">Pending Registrations</h1>
+        <h1 className="font-mono text-xl font-bold text-foreground sm:text-2xl">
+          Pending Registrations
+        </h1>
         <p className="text-sm text-muted-foreground">
           Review and approve or reject team registrations
         </p>

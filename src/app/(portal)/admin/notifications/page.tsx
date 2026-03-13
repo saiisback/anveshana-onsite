@@ -43,12 +43,31 @@ export default function AdminNotificationsPage() {
 
     setIsSending(true);
     try {
+      const trimmedTitle = title.trim();
+      const trimmedMessage = message.trim();
+
+      // Create in-app announcement via Convex
       await createAnnouncement({
-        title: title.trim(),
-        message: message.trim(),
+        title: trimmedTitle,
+        message: trimmedMessage,
         targetRole,
         createdBy: userId,
       });
+
+      // Send email notifications (fire-and-forget, don't block UI)
+      fetch("/api/email/announcement", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: trimmedTitle,
+          message: trimmedMessage,
+          targetRole,
+        }),
+      }).catch(() => {
+        // Email failure shouldn't affect the announcement
+        console.error("Failed to send announcement emails");
+      });
+
       setTitle("");
       setMessage("");
       setTargetRole("ALL");

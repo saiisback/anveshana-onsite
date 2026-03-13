@@ -11,15 +11,19 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { CheckCircle, XCircle, Loader2, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 
 interface PendingTeam {
   id: string;
   name: string;
-  prototypeTitle: string;
-  category: string;
+  leadEmail: string;
   membersCount: number;
+  powerOutlet: boolean;
+  internetNeeded: boolean;
+  tableSize: string | null;
+  additionalRequirements: string | null;
+  paymentScreenshot: string | null;
   createdAt: string;
 }
 
@@ -38,7 +42,7 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
         throw new Error(data.error || "Failed to approve team");
       }
       setPendingTeams((prev) => prev.filter((t) => t.id !== teamId));
-      toast.success("Team approved successfully");
+      toast.success("Team approved — password setup emails sent to all members");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to approve team"
@@ -87,10 +91,11 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Team Name</TableHead>
-            <TableHead>Prototype</TableHead>
-            <TableHead>Category</TableHead>
+            <TableHead>Team</TableHead>
+            <TableHead>Lead Email</TableHead>
             <TableHead className="text-center">Members</TableHead>
+            <TableHead>Requirements</TableHead>
+            <TableHead>Payment</TableHead>
             <TableHead>Submitted</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
@@ -101,14 +106,45 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
             return (
               <TableRow key={team.id}>
                 <TableCell className="font-medium">{team.name}</TableCell>
-                <TableCell>{team.prototypeTitle}</TableCell>
-                <TableCell>
-                  <Badge variant="secondary">{team.category}</Badge>
-                </TableCell>
+                <TableCell className="text-sm">{team.leadEmail}</TableCell>
                 <TableCell className="text-center">
                   {team.membersCount}
                 </TableCell>
                 <TableCell>
+                  <div className="flex flex-wrap gap-1">
+                    {team.powerOutlet && (
+                      <Badge variant="secondary" className="text-xs">
+                        Power
+                      </Badge>
+                    )}
+                    {team.internetNeeded && (
+                      <Badge variant="secondary" className="text-xs">
+                        Internet
+                      </Badge>
+                    )}
+                    {team.tableSize && (
+                      <Badge variant="secondary" className="text-xs capitalize">
+                        {team.tableSize}
+                      </Badge>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  {team.paymentScreenshot ? (
+                    <a
+                      href={team.paymentScreenshot}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                    >
+                      View
+                      <ExternalLink className="size-3" />
+                    </a>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">—</span>
+                  )}
+                </TableCell>
+                <TableCell className="text-sm">
                   {new Date(team.createdAt).toLocaleDateString()}
                 </TableCell>
                 <TableCell className="text-right">
