@@ -181,7 +181,7 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
         onOpenChange={(open) => !open && setSelectedTeam(null)}
       >
         {selectedTeam && (
-          <DialogContent className="max-w-3xl">
+          <DialogContent className="max-w-[95vw] sm:max-w-[90vw] lg:max-w-5xl">
             <DialogHeader>
               <div className="flex items-center gap-3">
                 <DialogTitle className="text-lg">
