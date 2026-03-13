@@ -6,7 +6,8 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  serverExternalPackages: ["resend", "bcryptjs", "@prisma/client", "better-auth"],
+  transpilePackages: ["better-auth"],
+  serverExternalPackages: ["resend", "bcryptjs", "@prisma/client"],
 };
 
 export default nextConfig;

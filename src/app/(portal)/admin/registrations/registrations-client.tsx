@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   Table,
   TableBody,
@@ -9,6 +10,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Loader2, ExternalLink } from "lucide-react";
@@ -30,6 +36,7 @@ interface PendingTeam {
 export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
   const [pendingTeams, setPendingTeams] = useState(teams);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   async function handleApprove(teamId: string) {
     setLoadingId(teamId);
@@ -77,10 +84,10 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
     return (
       <div className="rounded-lg border border-dashed p-12 text-center">
         <p className="text-lg font-medium text-muted-foreground">
-          No pending registrations
+          No pending RSVPs
         </p>
         <p className="text-sm text-muted-foreground/70">
-          All team registrations have been reviewed.
+          All team RSVPs have been reviewed.
         </p>
       </div>
     );
@@ -131,15 +138,31 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
                 </TableCell>
                 <TableCell>
                   {team.paymentScreenshot ? (
-                    <a
-                      href={team.paymentScreenshot}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-                    >
-                      View
-                      <ExternalLink className="size-3" />
-                    </a>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setPreviewImage(team.paymentScreenshot)
+                        }
+                        className="relative size-12 overflow-hidden rounded border border-border hover:ring-2 hover:ring-primary transition-all cursor-pointer"
+                      >
+                        <Image
+                          src={team.paymentScreenshot}
+                          alt="Payment screenshot"
+                          fill
+                          className="object-cover"
+                          unoptimized
+                        />
+                      </button>
+                      <a
+                        href={team.paymentScreenshot}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-muted-foreground hover:text-primary"
+                      >
+                        <ExternalLink className="size-3.5" />
+                      </a>
+                    </div>
                   ) : (
                     <span className="text-sm text-muted-foreground">—</span>
                   )}
@@ -181,6 +204,27 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
           })}
         </TableBody>
       </Table>
+
+      <Dialog
+        open={!!previewImage}
+        onOpenChange={(open) => !open && setPreviewImage(null)}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogTitle>Payment Screenshot</DialogTitle>
+          {previewImage && (
+            <div className="relative w-full max-h-[70vh] overflow-auto">
+              <Image
+                src={previewImage}
+                alt="Payment screenshot"
+                width={800}
+                height={600}
+                className="w-full h-auto rounded"
+                unoptimized
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

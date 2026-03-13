@@ -25,7 +25,7 @@ export default async function RegisterPage({
               <div className="space-y-2">
                 <h2 className="text-xl font-bold">No Invitation Token</h2>
                 <p className="text-sm text-muted-foreground">
-                  Registration is invite-only. Please check your email for an
+                  RSVP is invite-only. Please check your email for an
                   invitation link.
                 </p>
               </div>

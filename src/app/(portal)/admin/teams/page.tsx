@@ -40,7 +40,7 @@ export default async function AdminTeamsPage() {
               href="/admin/registrations"
               className="text-primary underline underline-offset-4"
             >
-              registrations page
+              RSVPs page
             </Link>{" "}
             to see them here.
           </p>

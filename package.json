@@ -55,6 +55,9 @@
     "ws": "^8.19.0",
     "zod": "^4.3.6"
   },
+  "overrides": {
+    "effect": "3.18.4"
+  },
   "devDependencies": {
     "@types/node": "^25",
     "@types/pg": "^8.18.0",

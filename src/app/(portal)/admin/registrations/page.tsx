@@ -34,10 +34,10 @@ export default async function AdminRegistrationsPage() {
     <div className="space-y-6 p-4">
       <div>
         <h1 className="font-mono text-xl font-bold text-foreground sm:text-2xl">
-          Pending Registrations
+          Pending RSVPs
         </h1>
         <p className="text-sm text-muted-foreground">
-          Review and approve or reject team registrations
+          Review and approve or reject team RSVPs
         </p>
       </div>
       <RegistrationsClient teams={teams} />

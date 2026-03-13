@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { sendBatchTemplateEmails, TEMPLATE_IDS } from "@/lib/resend";
+import { sendBatchEmails } from "@/lib/resend";
+import { passwordSetupEmail } from "@/lib/email-templates";
 import { generatePasswordSetupToken } from "@/lib/tokens";
 
 export async function POST(
@@ -66,18 +67,14 @@ export async function POST(
         const setupToken = await generatePasswordSetupToken(member.user.id);
         return {
           to: member.user.email,
-          subject: `Team Approved — Set Your Password | Anveshana 2026`,
-          templateId: TEMPLATE_IDS.passwordSetup,
-          data: {
-            NAME: member.user.name,
-            SETUP_URL: `${appUrl}/set-password?token=${setupToken.token}`,
-          },
+          subject: `Team Approved — Set Your Password | Anveshana 3.0`,
+          html: passwordSetupEmail(member.user.name, `${appUrl}/set-password?token=${setupToken.token}`),
         };
       })
     );
 
     // Send batch emails (fire-and-forget)
-    sendBatchTemplateEmails(emailBatch).catch((err) =>
+    sendBatchEmails(emailBatch).catch((err) =>
       console.error("Password setup email failed:", err)
     );
 

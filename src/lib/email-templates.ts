@@ -5,7 +5,7 @@ const baseLayout = (content: string) => `
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Anveshana 2026</title>
+  <title>Anveshana 3.0</title>
   <!--[if mso]>
   <noscript>
     <xml>
@@ -44,16 +44,13 @@ const baseLayout = (content: string) => `
               <table role="presentation" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <!-- Logo icon -->
-                    <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #6366f1, #a855f7); border-radius: 14px; text-align: center; line-height: 56px; font-size: 28px; margin-bottom: 16px;">
-                      &#x1F52C;
-                    </div>
+                    <div style="height: 16px;"></div>
                   </td>
                 </tr>
                 <tr>
                   <td align="center">
-                    <h1 style="margin: 0; font-size: 26px; font-weight: 800; color: #fafafa; letter-spacing: -0.5px;">ANVESHANA</h1>
-                    <p style="margin: 6px 0 0; font-size: 11px; color: #6366f1; text-transform: uppercase; letter-spacing: 3px; font-weight: 600;">Science &amp; Engineering Fair 2026</p>
+                    <h1 style="margin: 0; font-size: 26px; font-weight: 800; color: #fafafa; letter-spacing: -0.5px;">ANVESHANA 3.0</h1>
+                    <p style="margin: 6px 0 0; font-size: 11px; color: #6366f1; text-transform: uppercase; letter-spacing: 3px; font-weight: 600;">National Prototype Competition</p>
                   </td>
                 </tr>
               </table>
@@ -87,8 +84,8 @@ const baseLayout = (content: string) => `
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                 <tr>
                   <td align="center">
-                    <p style="margin: 0 0 8px; font-size: 13px; color: #525252;">Anveshana 2026 &mdash; Agastya International Foundation</p>
-                    <p style="margin: 0; font-size: 11px; color: #3f3f3f;">Inspiring curiosity &amp; creativity in young minds across India</p>
+                    <p style="margin: 0 0 8px; font-size: 13px; color: #525252;">Anveshana 3.0</p>
+                    <p style="margin: 0; font-size: 11px; color: #3f3f3f;">National Prototype Competition</p>
                   </td>
                 </tr>
               </table>
@@ -176,21 +173,20 @@ export function invitationEmail(registerUrl: string) {
 
     <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa; text-align: center; letter-spacing: -0.3px;">You're Invited!</h2>
     <p style="margin: 0 0 24px; font-size: 14px; color: #a3a3a3; text-align: center; line-height: 1.7;">
-      You've been specially selected to register your team for <strong style="color: #e5e5e5;">Anveshana 2026</strong> — India's premier national-level science &amp; engineering prototype exhibition.
+      You've been specially selected to RSVP your team for <strong style="color: #e5e5e5;">Anveshana 3.0</strong> — India's premier national-level prototype competition.
     </p>
 
     ${infoBox(`
-      ${infoRow("&#x1F4C5;", "Event", "Anveshana 2026")}
-      ${infoRow("&#x1F3AF;", "Type", "Prototype Exhibition")}
-      ${infoRow("&#x23F3;", "Link Expires", "7 Days")}
+      ${infoRow("&#x1F4C5;", "Event", "Anveshana 3.0")}
+${infoRow("&#x23F3;", "Link Expires", "7 Days")}
     `)}
 
-    ${ctaButton(registerUrl, "&#x1F680;&nbsp;&nbsp;Register Your Team")}
+    ${ctaButton(registerUrl, "&#x1F680;&nbsp;&nbsp;RSVP Your Team")}
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       <tr>
         <td align="center" style="padding-bottom: 16px;">
-          <p style="margin: 0; font-size: 13px; color: #525252;">&#x26A1; Spots are limited — register before your invite expires</p>
+          <p style="margin: 0; font-size: 13px; color: #525252;">&#x26A1; Spots are limited — RSVP before your invite expires</p>
         </td>
       </tr>
     </table>
@@ -211,7 +207,7 @@ export function teamApprovedEmail(teamName: string, stallNumber: number, leadNam
 
     <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa; text-align: center;">Congratulations, ${leadName}!</h2>
     <p style="margin: 0 0 6px; font-size: 14px; color: #a3a3a3; text-align: center; line-height: 1.7;">
-      Your team has been ${badge("APPROVED", "success")} for Anveshana 2026.
+      Your team has been ${badge("APPROVED", "success")} for Anveshana 3.0.
     </p>
     <p style="margin: 0 0 24px; font-size: 14px; color: #a3a3a3; text-align: center; line-height: 1.7;">
       Get ready to showcase your innovation!
@@ -233,7 +229,7 @@ export function teamRejectedEmail(teamName: string, leadName: string) {
   return baseLayout(`
     <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa;">Hi ${leadName},</h2>
     <p style="margin: 0 0 20px; font-size: 14px; color: #a3a3a3; line-height: 1.7;">
-      We appreciate your interest in Anveshana 2026. After careful review, your team <strong style="color: #e5e5e5;">${teamName}</strong> has been ${badge("NOT SELECTED", "error")} this year.
+      We appreciate your interest in Anveshana 3.0. After careful review, your team <strong style="color: #e5e5e5;">${teamName}</strong> has been ${badge("NOT SELECTED", "error")} this year.
     </p>
 
     ${infoBox(`

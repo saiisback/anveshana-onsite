@@ -27,8 +27,15 @@ import {
   LogOut,
   Menu,
   Mail,
+  Lock,
 } from "lucide-react";
 import { useState } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Role = "PARTICIPANT" | "VOLUNTEER" | "ADMIN";
 
@@ -36,15 +43,16 @@ interface NavItem {
   label: string;
   href: string;
   icon: React.ReactNode;
+  locked?: boolean;
 }
 
 const navItems: Record<Role, NavItem[]> = {
   PARTICIPANT: [
     { label: "Home", href: "/participant", icon: <LayoutDashboard className="size-5" /> },
-    { label: "Schedule", href: "/participant/schedule", icon: <Calendar className="size-5" /> },
-    { label: "Help", href: "/participant/help", icon: <HelpCircle className="size-5" /> },
-    { label: "Map", href: "/participant/map", icon: <Map className="size-5" /> },
-    { label: "Alerts", href: "/participant/notifications", icon: <Bell className="size-5" /> },
+    { label: "Schedule", href: "/participant/schedule", icon: <Calendar className="size-5" />, locked: true },
+    { label: "Help", href: "/participant/help", icon: <HelpCircle className="size-5" />, locked: true },
+    { label: "Map", href: "/participant/map", icon: <Map className="size-5" />, locked: true },
+    { label: "Alerts", href: "/participant/notifications", icon: <Bell className="size-5" />, locked: true },
   ],
   VOLUNTEER: [
     { label: "Home", href: "/volunteer", icon: <LayoutDashboard className="size-5" /> },
@@ -56,7 +64,7 @@ const navItems: Record<Role, NavItem[]> = {
   ADMIN: [
     { label: "Dashboard", href: "/admin", icon: <LayoutDashboard className="size-5" /> },
     { label: "Invitations", href: "/admin/invitations", icon: <Mail className="size-5" /> },
-    { label: "Registrations", href: "/admin/registrations", icon: <Users className="size-5" /> },
+    { label: "RSVPs", href: "/admin/registrations", icon: <Users className="size-5" /> },
     { label: "Teams", href: "/admin/teams", icon: <Users className="size-5" /> },
     { label: "Judges", href: "/admin/judges", icon: <Gavel className="size-5" /> },
     { label: "Volunteers", href: "/admin/volunteers", icon: <UserCheck className="size-5" /> },
@@ -83,29 +91,50 @@ function NavLinks({
   onNavigate?: () => void;
 }) {
   return (
-    <nav className="flex flex-col gap-1">
-      {items.map((item) => {
-        const isActive =
-          pathname === item.href ||
-          (item.href !== "/" && pathname.startsWith(item.href + "/"));
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onNavigate}
-            className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-              isActive
-                ? "bg-primary/15 text-primary"
-                : "text-muted-foreground hover:bg-primary/5 hover:text-foreground"
-            )}
-          >
-            {item.icon}
-            {item.label}
-          </Link>
-        );
-      })}
-    </nav>
+    <TooltipProvider delayDuration={0}>
+      <nav className="flex flex-col gap-1">
+        {items.map((item) => {
+          if (item.locked) {
+            return (
+              <Tooltip key={item.href}>
+                <TooltipTrigger asChild>
+                  <span
+                    className="flex cursor-not-allowed items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground/50"
+                  >
+                    {item.icon}
+                    {item.label}
+                    <Lock className="ml-auto size-3.5" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="right">
+                  <p>Will open on the day of the event</p>
+                </TooltipContent>
+              </Tooltip>
+            );
+          }
+
+          const isActive =
+            pathname === item.href ||
+            (item.href !== "/" && pathname.startsWith(item.href + "/"));
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={onNavigate}
+              className={cn(
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted-foreground hover:bg-primary/5 hover:text-foreground"
+              )}
+            >
+              {item.icon}
+              {item.label}
+            </Link>
+          );
+        })}
+      </nav>
+    </TooltipProvider>
   );
 }
 
@@ -165,6 +194,21 @@ function BottomNavBar({ role, pathname }: { role: Role; pathname: string }) {
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-sidebar lg:hidden">
       <div className="flex items-center justify-around px-1 pb-[env(safe-area-inset-bottom)]">
         {items.map((item) => {
+          if (item.locked) {
+            return (
+              <span
+                key={item.href}
+                className="flex flex-1 cursor-not-allowed flex-col items-center gap-0.5 py-2 text-[10px] font-medium text-muted-foreground/40"
+              >
+                <div className="relative flex size-8 items-center justify-center rounded-xl">
+                  {item.icon}
+                  <Lock className="absolute -right-0.5 -top-0.5 size-2.5" />
+                </div>
+                {item.label}
+              </span>
+            );
+          }
+
           const isActive =
             pathname === item.href ||
             (item.href !== "/" && pathname.startsWith(item.href + "/"));

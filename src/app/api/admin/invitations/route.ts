@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { generateInviteToken } from "@/lib/tokens";
-import { sendBatchTemplateEmails, TEMPLATE_IDS } from "@/lib/resend";
+import { sendBatchEmails } from "@/lib/resend";
+import { invitationEmail } from "@/lib/email-templates";
 
 export async function POST(request: Request) {
   try {
@@ -41,20 +42,17 @@ export async function POST(request: Request) {
       newEmails.map((email) => generateInviteToken(email))
     );
 
-    // Build email batch using template
+    // Build email batch with rendered HTML
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const emailBatch = invitations.map((inv) => ({
       to: inv.email,
-      subject: "You're Invited to Anveshana 2026!",
-      templateId: TEMPLATE_IDS.invitation,
-      data: {
-        REGISTER_URL: `${appUrl}/register?token=${inv.token}`,
-      },
+      subject: "You're Invited to Anveshana 3.0!",
+      html: invitationEmail(`${appUrl}/register?token=${inv.token}`),
     }));
 
     // Send in batches of 100 (Resend limit)
     for (let i = 0; i < emailBatch.length; i += 100) {
-      const result = await sendBatchTemplateEmails(emailBatch.slice(i, i + 100));
+      const result = await sendBatchEmails(emailBatch.slice(i, i + 100));
       if (!result.success) {
         console.error("Batch send failed:", JSON.stringify(result.error));
         return NextResponse.json(

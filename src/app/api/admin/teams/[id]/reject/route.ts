@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { sendTemplateEmail, TEMPLATE_IDS } from "@/lib/resend";
+import { sendEmail } from "@/lib/resend";
+import { teamRejectedEmail } from "@/lib/email-templates";
 
 export async function POST(
   _request: Request,
@@ -39,14 +40,10 @@ export async function POST(
     // Send rejection email to team lead only
     const lead = team.members[0];
     if (lead?.user.email) {
-      sendTemplateEmail({
+      sendEmail({
         to: lead.user.email,
-        subject: `Team "${team.name}" — Anveshana 2026 Update`,
-        templateId: TEMPLATE_IDS.teamRejected,
-        data: {
-          LEAD_NAME: lead.user.name,
-          TEAM_NAME: team.name,
-        },
+        subject: `Team "${team.name}" — Anveshana 3.0 Update`,
+        html: teamRejectedEmail(team.name, lead.user.name),
       }).catch((err) => console.error("Rejection email failed:", err));
     }
 

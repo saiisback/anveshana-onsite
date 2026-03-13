@@ -11,13 +11,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import {
   Users,
-  FlaskConical,
   MapPin,
   Clock,
   Gavel,
   HelpCircle,
+  Lock,
 } from "lucide-react";
-import Link from "next/link";
 
 export default async function ParticipantDashboard() {
   const session = await getSession();
@@ -56,12 +55,51 @@ export default async function ParticipantDashboard() {
         </p>
       </div>
 
-      {/* Stats grid - 2 cols on mobile, 4 on desktop */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      {/* Stats — stacked on mobile, single row on desktop */}
+      <div className="space-y-3 lg:hidden">
         <Card>
-          <CardHeader className="p-4 sm:p-6">
+          <CardHeader className="p-4">
             <CardDescription>Team Name</CardDescription>
-            <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+            <CardTitle className="flex items-center gap-2 text-sm">
+              <Users className="size-4 text-primary" />
+              {team?.name ?? "Not assigned"}
+            </CardTitle>
+          </CardHeader>
+        </Card>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Card>
+            <CardHeader className="p-4">
+              <CardDescription>Stall Number</CardDescription>
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <MapPin className="size-4 text-primary" />
+                TBD
+              </CardTitle>
+            </CardHeader>
+          </Card>
+
+          <Card>
+            <CardHeader className="p-4">
+              <CardDescription>Status</CardDescription>
+              <CardTitle>
+                <Badge
+                  variant={
+                    team?.status === "APPROVED" ? "default" : "secondary"
+                  }
+                >
+                  {team?.status ?? "PENDING"}
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+          </Card>
+        </div>
+      </div>
+
+      <div className="hidden lg:grid lg:grid-cols-3 lg:gap-4">
+        <Card>
+          <CardHeader className="p-6">
+            <CardDescription>Team Name</CardDescription>
+            <CardTitle className="flex items-center gap-2 text-base">
               <Users className="size-4 text-primary" />
               {team?.name ?? "Not assigned"}
             </CardTitle>
@@ -69,27 +107,17 @@ export default async function ParticipantDashboard() {
         </Card>
 
         <Card>
-          <CardHeader className="p-4 sm:p-6">
-            <CardDescription>Prototype</CardDescription>
-            <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-              <FlaskConical className="size-4 text-primary" />
-              <span className="truncate">{team?.prototypeTitle ?? "Not set"}</span>
-            </CardTitle>
-          </CardHeader>
-        </Card>
-
-        <Card>
-          <CardHeader className="p-4 sm:p-6">
+          <CardHeader className="p-6">
             <CardDescription>Stall Number</CardDescription>
-            <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+            <CardTitle className="flex items-center gap-2 text-base">
               <MapPin className="size-4 text-primary" />
-              {team?.stallNumber ? `Stall #${team.stallNumber}` : "TBD"}
+              TBD
             </CardTitle>
           </CardHeader>
         </Card>
 
         <Card>
-          <CardHeader className="p-4 sm:p-6">
+          <CardHeader className="p-6">
             <CardDescription>Status</CardDescription>
             <CardTitle>
               <Badge
@@ -148,25 +176,17 @@ export default async function ParticipantDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="opacity-60">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <HelpCircle className="size-4 text-orange-500" />
               Help Requests
+              <Lock className="ml-auto size-3.5 text-muted-foreground" />
             </CardTitle>
             <CardDescription>
-              Need help? Raise a request for volunteers.
+              Will open on the day of the event.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <Link
-              href="/participant/help"
-              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              <HelpCircle className="size-4" />
-              Raise Help Request
-            </Link>
-          </CardContent>
         </Card>
       </div>
     </div>

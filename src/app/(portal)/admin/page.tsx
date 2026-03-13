@@ -93,7 +93,7 @@ export default async function AdminDashboard() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-base">
                 <Users className="size-4 text-primary" />
-                Recent Registrations
+                Recent RSVPs
               </CardTitle>
               <Link
                 href="/admin/registrations"
@@ -102,7 +102,7 @@ export default async function AdminDashboard() {
                 View all <ArrowRight className="size-3" />
               </Link>
             </div>
-            <CardDescription>Latest team registrations</CardDescription>
+            <CardDescription>Latest team RSVPs</CardDescription>
           </CardHeader>
           <CardContent>
             {recentTeams.length > 0 ? (
@@ -133,7 +133,7 @@ export default async function AdminDashboard() {
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">No registrations yet.</p>
+              <p className="text-sm text-muted-foreground">No RSVPs yet.</p>
             )}
           </CardContent>
         </Card>

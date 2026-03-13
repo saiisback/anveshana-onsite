@@ -154,7 +154,7 @@ export default function RegisterClient({
       if (!res.ok) {
         const body = await res.json().catch(() => null);
         throw new Error(
-          body?.error ?? "Registration failed. Please try again."
+          body?.error ?? "RSVP failed. Please try again."
         );
       }
 
@@ -184,10 +184,10 @@ export default function RegisterClient({
             </div>
             <div className="space-y-2">
               <h2 className="text-2xl font-bold tracking-tight">
-                Registration Submitted!
+                RSVP Submitted!
               </h2>
               <p className="text-muted-foreground">
-                Your team registration is now pending admin approval.
+                Your team RSVP is now pending admin approval.
               </p>
               <p className="text-sm text-muted-foreground">
                 Once approved, all team members will receive an email to set
@@ -212,56 +212,58 @@ export default function RegisterClient({
     <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center px-4 py-12">
       <div className="w-full max-w-2xl space-y-6">
         {/* Progress Indicator */}
-        <div className="flex items-center justify-between">
-          {STEPS.slice(0, 2).map((s, i) => {
-            const Icon = s.icon;
-            const isActive = i === step;
-            const isComplete = i < step;
-            return (
-              <div key={s.label} className="flex flex-1 items-center">
-                <div className="flex flex-col items-center gap-1.5">
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors ${
-                      isActive
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : isComplete
-                          ? "border-primary bg-primary/10 text-primary"
-                          : "border-muted-foreground/30 text-muted-foreground/50"
-                    }`}
-                  >
-                    {isComplete ? (
-                      <CheckCircle2 className="h-5 w-5" />
-                    ) : (
-                      <Icon className="h-5 w-5" />
-                    )}
+        <div className="mx-auto max-w-sm rounded-2xl border border-white/10 bg-white/5 px-6 py-4 backdrop-blur-xl">
+          <div className="flex items-center justify-center gap-3">
+            {STEPS.slice(0, 2).map((s, i) => {
+              const Icon = s.icon;
+              const isActive = i === step;
+              const isComplete = i < step;
+              return (
+                <div key={s.label} className="contents">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div
+                      className={`flex h-9 w-9 items-center justify-center rounded-full border-2 transition-colors ${
+                        isActive
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : isComplete
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-muted-foreground/30 text-muted-foreground/50"
+                      }`}
+                    >
+                      {isComplete ? (
+                        <CheckCircle2 className="h-4 w-4" />
+                      ) : (
+                        <Icon className="h-4 w-4" />
+                      )}
+                    </div>
+                    <span
+                      className={`text-xs font-medium ${
+                        isActive
+                          ? "text-foreground"
+                          : isComplete
+                            ? "text-primary"
+                            : "text-muted-foreground/50"
+                      }`}
+                    >
+                      {s.label}
+                    </span>
                   </div>
-                  <span
-                    className={`hidden text-xs font-medium sm:block ${
-                      isActive
-                        ? "text-foreground"
-                        : isComplete
-                          ? "text-primary"
-                          : "text-muted-foreground/50"
-                    }`}
-                  >
-                    {s.label}
-                  </span>
+                  {i < 1 && (
+                    <div
+                      className={`mb-5 h-0.5 w-16 rounded-full transition-colors ${
+                        i < step ? "bg-primary" : "bg-muted-foreground/20"
+                      }`}
+                    />
+                  )}
                 </div>
-                {i < 1 && (
-                  <div
-                    className={`mx-2 h-0.5 flex-1 rounded-full transition-colors ${
-                      i < step ? "bg-primary" : "bg-muted-foreground/20"
-                    }`}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
 
-        <p className="text-center text-sm text-muted-foreground">
-          Step {step + 1} of 2
-        </p>
+          <p className="mt-2 text-center text-xs text-muted-foreground">
+            Step {step + 1} of 2
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
           <Card>
@@ -567,7 +569,7 @@ export default function RegisterClient({
                       Submitting...
                     </>
                   ) : (
-                    "Submit Registration"
+                    "Submit RSVP"
                   )}
                 </Button>
               )}
