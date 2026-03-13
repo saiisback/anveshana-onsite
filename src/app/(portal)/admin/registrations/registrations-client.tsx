@@ -181,22 +181,22 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
         onOpenChange={(open) => !open && setSelectedTeam(null)}
       >
         {selectedTeam && (
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-3xl">
             <DialogHeader>
-              <DialogTitle className="text-lg">{selectedTeam.name}</DialogTitle>
-              {selectedTeam.category && (
-                <Badge variant="outline" className="w-fit capitalize">
-                  {selectedTeam.category}
-                </Badge>
-              )}
-            </DialogHeader>
-
-            <div className="space-y-4">
-              {/* Prototype Info */}
+              <div className="flex items-center gap-3">
+                <DialogTitle className="text-lg">
+                  {selectedTeam.name}
+                </DialogTitle>
+                {selectedTeam.category && (
+                  <Badge variant="outline" className="capitalize">
+                    {selectedTeam.category}
+                  </Badge>
+                )}
+              </div>
               {(selectedTeam.prototypeTitle || selectedTeam.description) && (
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   {selectedTeam.prototypeTitle && (
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-medium text-foreground">
                       {selectedTeam.prototypeTitle}
                     </p>
                   )}
@@ -207,75 +207,92 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
                   )}
                 </div>
               )}
+            </DialogHeader>
 
-              {/* Members */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-1.5 text-sm font-medium">
-                  <Users className="size-4 text-primary" />
-                  Members ({selectedTeam.members.length})
-                </div>
-                <div className="space-y-1.5 rounded-md border p-3">
-                  {selectedTeam.members.map((m) => (
-                    <div
-                      key={m.email}
-                      className="flex items-center justify-between text-sm"
-                    >
-                      <span>{m.name}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-muted-foreground">{m.email}</span>
-                        {m.roleInTeam === "lead" && (
-                          <Badge variant="default" className="text-[10px]">
-                            Lead
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Requirements */}
-              <div className="space-y-2">
-                <p className="text-sm font-medium">Requirements</p>
-                <div className="flex flex-wrap gap-2">
-                  {selectedTeam.powerOutlet && (
-                    <Badge variant="secondary" className="gap-1">
-                      <Zap className="size-3" /> Power Outlet
-                    </Badge>
-                  )}
-                  {selectedTeam.internetNeeded && (
-                    <Badge variant="secondary" className="gap-1">
-                      <Wifi className="size-3" /> Internet
-                    </Badge>
-                  )}
-                  {selectedTeam.tableSize && (
-                    <Badge variant="secondary" className="gap-1 capitalize">
-                      <Table2 className="size-3" /> {selectedTeam.tableSize}{" "}
-                      table
-                    </Badge>
-                  )}
-                  {!selectedTeam.powerOutlet &&
-                    !selectedTeam.internetNeeded &&
-                    !selectedTeam.tableSize && (
-                      <span className="text-sm text-muted-foreground">
-                        None
-                      </span>
-                    )}
-                </div>
-                {selectedTeam.additionalRequirements && (
-                  <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
-                    <FileText className="mt-0.5 size-3.5 shrink-0" />
-                    {selectedTeam.additionalRequirements}
+            {/* Two-column horizontal layout */}
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              {/* Left column — Members + Requirements */}
+              <div className="space-y-4">
+                {/* Members */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5 text-sm font-medium">
+                    <Users className="size-4 text-primary" />
+                    Members ({selectedTeam.members.length})
                   </div>
-                )}
+                  <div className="space-y-1.5 rounded-md border p-3">
+                    {selectedTeam.members.map((m) => (
+                      <div
+                        key={m.email}
+                        className="flex items-center justify-between gap-2 text-sm"
+                      >
+                        <div className="flex items-center gap-1.5">
+                          <span>{m.name}</span>
+                          {m.roleInTeam === "lead" && (
+                            <Badge variant="default" className="text-[10px]">
+                              Lead
+                            </Badge>
+                          )}
+                        </div>
+                        <span className="truncate text-xs text-muted-foreground">
+                          {m.email}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Requirements */}
+                <div className="space-y-2">
+                  <p className="text-sm font-medium">Requirements</p>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedTeam.powerOutlet && (
+                      <Badge variant="secondary" className="gap-1">
+                        <Zap className="size-3" /> Power Outlet
+                      </Badge>
+                    )}
+                    {selectedTeam.internetNeeded && (
+                      <Badge variant="secondary" className="gap-1">
+                        <Wifi className="size-3" /> Internet
+                      </Badge>
+                    )}
+                    {selectedTeam.tableSize && (
+                      <Badge variant="secondary" className="gap-1 capitalize">
+                        <Table2 className="size-3" /> {selectedTeam.tableSize}{" "}
+                        table
+                      </Badge>
+                    )}
+                    {!selectedTeam.powerOutlet &&
+                      !selectedTeam.internetNeeded &&
+                      !selectedTeam.tableSize && (
+                        <span className="text-sm text-muted-foreground">
+                          None
+                        </span>
+                      )}
+                  </div>
+                  {selectedTeam.additionalRequirements && (
+                    <div className="flex items-start gap-1.5 text-sm text-muted-foreground">
+                      <FileText className="mt-0.5 size-3.5 shrink-0" />
+                      {selectedTeam.additionalRequirements}
+                    </div>
+                  )}
+                </div>
+
+                {/* Submitted date */}
+                <p className="text-xs text-muted-foreground">
+                  Submitted{" "}
+                  {new Date(selectedTeam.createdAt).toLocaleString("en-IN", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
+                </p>
               </div>
 
-              {/* Payment Screenshot */}
+              {/* Right column — Payment Screenshot */}
               <div className="space-y-2">
                 <p className="text-sm font-medium">Payment Screenshot</p>
                 {selectedTeam.paymentScreenshot ? (
                   <div className="space-y-2">
-                    <div className="relative w-full overflow-hidden rounded-md border">
+                    <div className="relative max-h-[50vh] overflow-auto rounded-md border">
                       <Image
                         src={selectedTeam.paymentScreenshot}
                         alt="Payment screenshot"
@@ -300,44 +317,35 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
                   </p>
                 )}
               </div>
+            </div>
 
-              {/* Submitted date */}
-              <p className="text-xs text-muted-foreground">
-                Submitted{" "}
-                {new Date(selectedTeam.createdAt).toLocaleString("en-IN", {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
-              </p>
-
-              {/* Actions */}
-              <div className="flex items-center gap-2 border-t pt-4">
-                <Button
-                  className="flex-1"
-                  onClick={() => handleApprove(selectedTeam.id)}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <Loader2 className="mr-1.5 size-4 animate-spin" />
-                  ) : (
-                    <CheckCircle className="mr-1.5 size-4" />
-                  )}
-                  Approve
-                </Button>
-                <Button
-                  className="flex-1"
-                  variant="outline"
-                  onClick={() => handleReject(selectedTeam.id)}
-                  disabled={isLoading}
-                >
-                  {isLoading ? (
-                    <Loader2 className="mr-1.5 size-4 animate-spin" />
-                  ) : (
-                    <XCircle className="mr-1.5 size-4" />
-                  )}
-                  Reject
-                </Button>
-              </div>
+            {/* Actions — full width at bottom */}
+            <div className="flex items-center gap-2 border-t pt-4">
+              <Button
+                className="flex-1"
+                onClick={() => handleApprove(selectedTeam.id)}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="mr-1.5 size-4 animate-spin" />
+                ) : (
+                  <CheckCircle className="mr-1.5 size-4" />
+                )}
+                Approve
+              </Button>
+              <Button
+                className="flex-1"
+                variant="outline"
+                onClick={() => handleReject(selectedTeam.id)}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <Loader2 className="mr-1.5 size-4 animate-spin" />
+                ) : (
+                  <XCircle className="mr-1.5 size-4" />
+                )}
+                Reject
+              </Button>
             </div>
           </DialogContent>
         )}
