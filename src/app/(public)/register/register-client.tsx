@@ -38,7 +38,7 @@ import {
   UserCircle,
 } from "lucide-react";
 import { Controller } from "react-hook-form";
-import { UploadDropzone } from "@/lib/uploadthing";
+import { UploadButton } from "@/lib/uploadthing";
 
 // ── Schema ──────────────────────────────────────────────────────────────────
 
@@ -505,7 +505,7 @@ export default function RegisterClient({
                         </Button>
                       </div>
                     ) : (
-                      <UploadDropzone
+                      <UploadButton
                         endpoint="paymentScreenshot"
                         onClientUploadComplete={(res) => {
                           if (res?.[0]) {
