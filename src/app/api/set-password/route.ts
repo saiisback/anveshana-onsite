@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { hash } from "bcryptjs";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { validatePasswordSetupToken } from "@/lib/tokens";
+import { hashPassword } from "@/lib/auth";
 
 const schema = z.object({
   token: z.string().min(1),
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const hashedPassword = await hash(password, 12);
+    const hashedPassword = await hashPassword(password);
 
     await prisma.$transaction(async (tx) => {
       // Update user password

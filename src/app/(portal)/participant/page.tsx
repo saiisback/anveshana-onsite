@@ -56,50 +56,11 @@ export default async function ParticipantDashboard() {
       </div>
 
       {/* Stats — stacked on mobile, single row on desktop */}
-      <div className="space-y-3 lg:hidden">
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3 lg:gap-4">
         <Card>
-          <CardHeader className="p-4">
+          <CardHeader className="p-4 lg:p-6">
             <CardDescription>Team Name</CardDescription>
-            <CardTitle className="flex items-center gap-2 text-sm">
-              <Users className="size-4 text-primary" />
-              {team?.name ?? "Not assigned"}
-            </CardTitle>
-          </CardHeader>
-        </Card>
-
-        <div className="grid grid-cols-2 gap-3">
-          <Card>
-            <CardHeader className="p-4">
-              <CardDescription>Stall Number</CardDescription>
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <MapPin className="size-4 text-primary" />
-                TBD
-              </CardTitle>
-            </CardHeader>
-          </Card>
-
-          <Card>
-            <CardHeader className="p-4">
-              <CardDescription>Status</CardDescription>
-              <CardTitle>
-                <Badge
-                  variant={
-                    team?.status === "APPROVED" ? "default" : "secondary"
-                  }
-                >
-                  {team?.status ?? "PENDING"}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-          </Card>
-        </div>
-      </div>
-
-      <div className="hidden lg:grid lg:grid-cols-3 lg:gap-4">
-        <Card>
-          <CardHeader className="p-6">
-            <CardDescription>Team Name</CardDescription>
-            <CardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2 text-sm lg:text-base">
               <Users className="size-4 text-primary" />
               {team?.name ?? "Not assigned"}
             </CardTitle>
@@ -107,9 +68,9 @@ export default async function ParticipantDashboard() {
         </Card>
 
         <Card>
-          <CardHeader className="p-6">
+          <CardHeader className="p-4 lg:p-6">
             <CardDescription>Stall Number</CardDescription>
-            <CardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2 text-sm lg:text-base">
               <MapPin className="size-4 text-primary" />
               TBD
             </CardTitle>
@@ -117,7 +78,7 @@ export default async function ParticipantDashboard() {
         </Card>
 
         <Card>
-          <CardHeader className="p-6">
+          <CardHeader className="p-4 lg:p-6">
             <CardDescription>Status</CardDescription>
             <CardTitle>
               <Badge

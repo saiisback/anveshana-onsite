@@ -30,18 +30,18 @@ export async function middleware(req: NextRequest) {
     return response;
   }
 
-  const role = (session.user as { role?: string })?.role;
+  const role = (session.user as { role?: string })?.role ?? "PARTICIPANT";
 
-  if (pathname.startsWith("/admin") && role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/login", req.url));
-  }
+  const roleRouteMap: Record<string, string> = {
+    "/admin": "ADMIN",
+    "/volunteer": "VOLUNTEER",
+    "/participant": "PARTICIPANT",
+  };
 
-  if (pathname.startsWith("/volunteer") && role !== "VOLUNTEER") {
-    return NextResponse.redirect(new URL("/login", req.url));
-  }
-
-  if (pathname.startsWith("/participant") && role !== "PARTICIPANT") {
-    return NextResponse.redirect(new URL("/login", req.url));
+  for (const [prefix, requiredRole] of Object.entries(roleRouteMap)) {
+    if (pathname.startsWith(prefix) && role !== requiredRole) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
   }
 
   return NextResponse.next();

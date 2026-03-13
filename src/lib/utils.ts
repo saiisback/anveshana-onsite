@@ -5,6 +5,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // Simple obfuscation for usernames in URLs (base64 with UTF-8 support for emojis)
 const OBFUSCATION_KEY = "anveshana";
 
@@ -29,7 +38,7 @@ export interface LanyardData {
   variant: CardVariant;
 }
 
-export function encryptLanyardData(username: string, variant: CardVariant): string {
+export function encodeLanyardData(username: string, variant: CardVariant): string {
   if (!username) return "";
   // Format: key:variant:username
   const combined = `${OBFUSCATION_KEY}:${variant}:${username}`;
@@ -37,7 +46,7 @@ export function encryptLanyardData(username: string, variant: CardVariant): stri
   return encoded.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-export function decryptLanyardData(encrypted: string): LanyardData | null {
+export function decodeLanyardData(encrypted: string): LanyardData | null {
   if (!encrypted) return null;
   try {
     // Restore base64 padding and characters

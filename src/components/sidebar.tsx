@@ -76,6 +76,10 @@ const navItems: Record<Role, NavItem[]> = {
 
 const useBottomNav = (role: Role) => role === "PARTICIPANT" || role === "VOLUNTEER";
 
+function isNavActive(pathname: string, href: string): boolean {
+  return pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
+}
+
 interface SidebarProps {
   role: Role;
   userName?: string;
@@ -113,9 +117,7 @@ function NavLinks({
             );
           }
 
-          const isActive =
-            pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(item.href + "/"));
+          const active = isNavActive(pathname, item.href);
           return (
             <Link
               key={item.href}
@@ -123,7 +125,7 @@ function NavLinks({
               onClick={onNavigate}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive
+                active
                   ? "bg-primary/15 text-primary"
                   : "text-muted-foreground hover:bg-primary/5 hover:text-foreground"
               )}
@@ -209,16 +211,14 @@ function BottomNavBar({ role, pathname }: { role: Role; pathname: string }) {
             );
           }
 
-          const isActive =
-            pathname === item.href ||
-            (item.href !== "/" && pathname.startsWith(item.href + "/"));
+          const active = isNavActive(pathname, item.href);
           return (
             <Link
               key={item.href}
               href={item.href}
               className={cn(
                 "flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-medium transition-colors",
-                isActive
+                active
                   ? "text-primary"
                   : "text-muted-foreground active:text-foreground"
               )}
@@ -226,7 +226,7 @@ function BottomNavBar({ role, pathname }: { role: Role; pathname: string }) {
               <div
                 className={cn(
                   "flex size-8 items-center justify-center rounded-xl transition-colors",
-                  isActive && "bg-primary/15"
+                  active && "bg-primary/15"
                 )}
               >
                 {item.icon}

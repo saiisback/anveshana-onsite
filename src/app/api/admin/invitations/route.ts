@@ -1,10 +1,15 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { generateInviteToken } from "@/lib/tokens";
-import { sendBatchEmails } from "@/lib/resend";
+import { sendEmailsInBatches } from "@/lib/resend";
 import { invitationEmail } from "@/lib/email-templates";
+import { requireAdmin } from "@/lib/auth-server";
+import { APP_URL } from "@/lib/constants";
 
 export async function POST(request: Request) {
+  const { error } = await requireAdmin();
+  if (error) return error;
+
   try {
     const { emails } = await request.json();
 
@@ -43,23 +48,19 @@ export async function POST(request: Request) {
     );
 
     // Build email batch with rendered HTML
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
     const emailBatch = invitations.map((inv) => ({
       to: inv.email,
       subject: "You're Invited to Anveshana 3.0!",
-      html: invitationEmail(`${appUrl}/register?token=${inv.token}`),
+      html: invitationEmail(`${APP_URL}/register?token=${inv.token}`),
     }));
 
-    // Send in batches of 100 (Resend limit)
-    for (let i = 0; i < emailBatch.length; i += 100) {
-      const result = await sendBatchEmails(emailBatch.slice(i, i + 100));
-      if (!result.success) {
-        console.error("Batch send failed:", JSON.stringify(result.error));
-        return NextResponse.json(
-          { error: "Failed to send emails", details: result.error },
-          { status: 500 }
-        );
-      }
+    const result = await sendEmailsInBatches(emailBatch);
+    if (!result.success) {
+      console.error("Batch send failed:", JSON.stringify(result.error));
+      return NextResponse.json(
+        { error: "Failed to send emails", details: result.error },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json({
@@ -77,6 +78,9 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
+  const { error } = await requireAdmin();
+  if (error) return error;
+
   try {
     const invitations = await prisma.invitation.findMany({
       orderBy: { createdAt: "desc" },

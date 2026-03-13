@@ -1,3 +1,5 @@
+import { escapeHtml } from "@/lib/utils";
+
 const baseLayout = (content: string) => `
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -196,6 +198,8 @@ ${infoRow("&#x23F3;", "Link Expires", "7 Days")}
 }
 
 export function teamApprovedEmail(teamName: string, stallNumber: number, leadName: string) {
+  const safeTeamName = escapeHtml(teamName);
+  const safeLeadName = escapeHtml(leadName);
   return baseLayout(`
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       <tr>
@@ -205,7 +209,7 @@ export function teamApprovedEmail(teamName: string, stallNumber: number, leadNam
       </tr>
     </table>
 
-    <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa; text-align: center;">Congratulations, ${leadName}!</h2>
+    <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa; text-align: center;">Congratulations, ${safeLeadName}!</h2>
     <p style="margin: 0 0 6px; font-size: 14px; color: #a3a3a3; text-align: center; line-height: 1.7;">
       Your team has been ${badge("APPROVED", "success")} for Anveshana 3.0.
     </p>
@@ -214,7 +218,7 @@ export function teamApprovedEmail(teamName: string, stallNumber: number, leadNam
     </p>
 
     ${infoBox(`
-      ${infoRow("&#x1F465;", "Team", teamName)}
+      ${infoRow("&#x1F465;", "Team", safeTeamName)}
       ${infoRow("&#x1F4CD;", "Stall Number", `#${stallNumber}`)}
       ${infoRow("&#x2705;", "Status", "Approved")}
     `)}
@@ -226,14 +230,16 @@ export function teamApprovedEmail(teamName: string, stallNumber: number, leadNam
 }
 
 export function teamRejectedEmail(teamName: string, leadName: string) {
+  const safeTeamName = escapeHtml(teamName);
+  const safeLeadName = escapeHtml(leadName);
   return baseLayout(`
-    <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa;">Hi ${leadName},</h2>
+    <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa;">Hi ${safeLeadName},</h2>
     <p style="margin: 0 0 20px; font-size: 14px; color: #a3a3a3; line-height: 1.7;">
-      We appreciate your interest in Anveshana 3.0. After careful review, your team <strong style="color: #e5e5e5;">${teamName}</strong> has been ${badge("NOT SELECTED", "error")} this year.
+      We appreciate your interest in Anveshana 3.0. After careful review, your team <strong style="color: #e5e5e5;">${safeTeamName}</strong> has been ${badge("NOT SELECTED", "error")} this year.
     </p>
 
     ${infoBox(`
-      ${infoRow("&#x1F465;", "Team", teamName)}
+      ${infoRow("&#x1F465;", "Team", safeTeamName)}
       ${infoRow("&#x274C;", "Status", "Not Selected")}
     `)}
 
@@ -244,6 +250,8 @@ export function teamRejectedEmail(teamName: string, leadName: string) {
 }
 
 export function announcementEmail(title: string, message: string) {
+  const safeTitle = escapeHtml(title);
+  const safeMessage = escapeHtml(message);
   return baseLayout(`
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       <tr>
@@ -253,13 +261,13 @@ export function announcementEmail(title: string, message: string) {
       </tr>
     </table>
 
-    <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa; text-align: center;">${title}</h2>
+    <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa; text-align: center;">${safeTitle}</h2>
     <p style="margin: 0 0 20px; text-align: center;">${badge("ANNOUNCEMENT", "info")}</p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #111111; border: 1px solid #1e1e1e; border-radius: 12px; margin: 8px 0 20px;">
       <tr>
         <td style="padding: 20px;">
-          <p style="color: #d4d4d4; margin: 0; font-size: 14px; line-height: 1.7; white-space: pre-wrap;">${message}</p>
+          <p style="color: #d4d4d4; margin: 0; font-size: 14px; line-height: 1.7; white-space: pre-wrap;">${safeMessage}</p>
         </td>
       </tr>
     </table>
@@ -269,6 +277,7 @@ export function announcementEmail(title: string, message: string) {
 }
 
 export function checkInReminderEmail(teamName: string) {
+  const safeTeamName = escapeHtml(teamName);
   return baseLayout(`
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       <tr>
@@ -280,11 +289,11 @@ export function checkInReminderEmail(teamName: string) {
 
     <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa; text-align: center;">Check-In Reminder</h2>
     <p style="margin: 0 0 24px; font-size: 14px; color: #a3a3a3; text-align: center; line-height: 1.7;">
-      Team <strong style="color: #e5e5e5;">${teamName}</strong>, don't forget to check in when you arrive!
+      Team <strong style="color: #e5e5e5;">${safeTeamName}</strong>, don't forget to check in when you arrive!
     </p>
 
     ${infoBox(`
-      ${infoRow("&#x1F465;", "Team", teamName)}
+      ${infoRow("&#x1F465;", "Team", safeTeamName)}
       ${infoRow("&#x1F4CD;", "Action", "Check in at registration desk")}
       ${infoRow("&#x1F4F1;", "Alternative", "Check in via portal")}
     `)}
@@ -294,6 +303,8 @@ export function checkInReminderEmail(teamName: string) {
 }
 
 export function scheduleUpdateEmail(title: string, details: string) {
+  const safeTitle = escapeHtml(title);
+  const safeDetails = escapeHtml(details);
   return baseLayout(`
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       <tr>
@@ -309,8 +320,8 @@ export function scheduleUpdateEmail(title: string, details: string) {
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #111111; border: 1px solid #1e1e1e; border-radius: 12px; margin: 8px 0 20px;">
       <tr>
         <td style="padding: 20px;">
-          <p style="color: #fafafa; font-weight: 700; margin: 0 0 10px; font-size: 15px;">&#x1F4CC; ${title}</p>
-          <p style="color: #d4d4d4; margin: 0; font-size: 14px; line-height: 1.7; white-space: pre-wrap;">${details}</p>
+          <p style="color: #fafafa; font-weight: 700; margin: 0 0 10px; font-size: 15px;">&#x1F4CC; ${safeTitle}</p>
+          <p style="color: #d4d4d4; margin: 0; font-size: 14px; line-height: 1.7; white-space: pre-wrap;">${safeDetails}</p>
         </td>
       </tr>
     </table>
@@ -320,6 +331,7 @@ export function scheduleUpdateEmail(title: string, details: string) {
 }
 
 export function passwordSetupEmail(name: string, setupUrl: string) {
+  const safeName = escapeHtml(name);
   return baseLayout(`
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       <tr>
@@ -331,12 +343,12 @@ export function passwordSetupEmail(name: string, setupUrl: string) {
 
     <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa; text-align: center;">Set Your Password</h2>
     <p style="margin: 0 0 24px; font-size: 14px; color: #a3a3a3; text-align: center; line-height: 1.7;">
-      Hi <strong style="color: #e5e5e5;">${name}</strong>, your team is approved! &#x1F389;<br/>
+      Hi <strong style="color: #e5e5e5;">${safeName}</strong>, your team is approved! &#x1F389;<br/>
       Set up your password to access the on-site portal.
     </p>
 
     ${infoBox(`
-      ${infoRow("&#x1F464;", "Name", name)}
+      ${infoRow("&#x1F464;", "Name", safeName)}
       ${infoRow("&#x2705;", "Status", "Approved")}
       ${infoRow("&#x23F3;", "Link Expires", "7 Days")}
     `)}

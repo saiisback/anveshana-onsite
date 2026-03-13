@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
-import { getSession } from "@/lib/auth-server";
+import { getSession, getUserRole } from "@/lib/auth-server";
 import { cn } from "@/lib/utils";
 
 export default async function PortalLayout({
@@ -14,9 +14,7 @@ export default async function PortalLayout({
     redirect("/login");
   }
 
-  const role =
-    (session.user as { role?: string })?.role ?? "PARTICIPANT";
-  const castRole = role as "PARTICIPANT" | "VOLUNTEER" | "ADMIN";
+  const castRole = getUserRole(session);
   const hasBottomNav = castRole === "PARTICIPANT" || castRole === "VOLUNTEER";
 
   return (

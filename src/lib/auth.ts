@@ -3,6 +3,12 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { compare, hash } from "bcryptjs";
 import prisma from "@/lib/prisma";
 
+export const BCRYPT_SALT_ROUNDS = 12;
+
+export async function hashPassword(password: string): Promise<string> {
+  return hash(password, BCRYPT_SALT_ROUNDS);
+}
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -10,7 +16,7 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     password: {
-      hash: (password) => hash(password, 12),
+      hash: (password) => hashPassword(password),
       verify: ({ hash, password }) => compare(password, hash),
     },
   },

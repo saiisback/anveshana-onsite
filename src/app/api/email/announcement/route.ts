@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { sendBatchEmails } from "@/lib/resend";
+import { sendEmailsInBatches } from "@/lib/resend";
 import { announcementEmail } from "@/lib/email-templates";
+import { requireAdmin } from "@/lib/auth-server";
 
 export async function POST(request: Request) {
+  const { error } = await requireAdmin();
+  if (error) return error;
+
   try {
     const { title, message, targetRole } = await request.json();
 
@@ -51,18 +55,13 @@ export async function POST(request: Request) {
 
     const html = announcementEmail(title, message);
 
-    // Batch in groups of 100 (Resend limit)
-    const batches = [];
-    for (let i = 0; i < uniqueEmails.length; i += 100) {
-      const batch = uniqueEmails.slice(i, i + 100).map((email) => ({
-        to: email,
-        subject: `📢 ${title} — Anveshana 2026`,
-        html,
-      }));
-      batches.push(sendBatchEmails(batch));
-    }
+    const emails = uniqueEmails.map((email) => ({
+      to: email,
+      subject: `${title} — Anveshana 2026`,
+      html,
+    }));
 
-    await Promise.all(batches);
+    await sendEmailsInBatches(emails);
 
     return NextResponse.json({
       message: "Announcement emails sent",

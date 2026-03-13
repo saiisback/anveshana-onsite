@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/tooltip";
 import CardTemplate, { type CardTemplateRef, type CardVariant } from "@/components/card-template";
 import { Download, Link, Check } from "lucide-react";
-import { encryptLanyardData } from "@/lib/utils";
+import { encodeLanyardData } from "@/lib/utils";
 
 // X (Twitter) icon component
 function XIcon({ className }: { className?: string }) {
@@ -83,7 +83,7 @@ export default function LanyardWithControls({
   const getShareableUrl = useCallback(() => {
     const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
     if (appliedName) {
-      const encrypted = encryptLanyardData(appliedName, appliedVariant);
+      const encrypted = encodeLanyardData(appliedName, appliedVariant);
       return `${baseUrl}/lanyard?u=${encrypted}`;
     }
     return `${baseUrl}/lanyard`;

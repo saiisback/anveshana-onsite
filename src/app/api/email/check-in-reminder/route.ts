@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { sendBatchEmails } from "@/lib/resend";
+import { sendEmailsInBatches } from "@/lib/resend";
 import { checkInReminderEmail } from "@/lib/email-templates";
+import { requireAdmin } from "@/lib/auth-server";
 
 export async function POST(request: Request) {
+  const { error } = await requireAdmin();
+  if (error) return error;
+
   try {
     const { teamIds } = (await request.json()) as { teamIds?: string[] };
 
@@ -35,12 +39,7 @@ export async function POST(request: Request) {
         html: checkInReminderEmail(t.name),
       }));
 
-    // Batch in groups of 100
-    const batches = [];
-    for (let i = 0; i < emails.length; i += 100) {
-      batches.push(sendBatchEmails(emails.slice(i, i + 100)));
-    }
-    await Promise.all(batches);
+    await sendEmailsInBatches(emails);
 
     return NextResponse.json({
       message: "Check-in reminders sent",
