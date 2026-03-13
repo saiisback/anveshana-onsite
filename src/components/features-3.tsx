@@ -2,7 +2,7 @@ import {Card, CardContent, CardHeader} from '@/components/ui/card'
 import {MapIcon, HelpCircleIcon, CalendarIcon} from 'lucide-react'
 import React, {ReactNode} from 'react'
 import {TextEffect} from "@/components/motion-primitives/text-effect";
-import {transitionVariants} from "@/lib/utils";
+import {transitionVariants} from "@/lib/animations";
 import {AnimatedGroup} from "@/components/motion-primitives/animated-group";
 
 export default function Features() {

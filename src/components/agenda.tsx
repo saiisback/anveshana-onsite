@@ -1,6 +1,6 @@
 import {TextEffect} from "@/components/motion-primitives/text-effect";
 import React from "react";
-import {transitionVariants} from "@/lib/utils";
+import {transitionVariants} from "@/lib/animations";
 import {AnimatedGroup} from "@/components/motion-primitives/animated-group";
 
 export default function Agenda() {

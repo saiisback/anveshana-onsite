@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/landing-button'
 import { TextEffect } from "@/components/motion-primitives/text-effect";
 import { AnimatedGroup } from "@/components/motion-primitives/animated-group";
 import DecryptedText from "@/components/DecryptedText";
-import { transitionVariants } from "@/lib/utils";
+import { transitionVariants } from "@/lib/animations";
 import LanyardWithControls from "@/components/lanyard-with-controls";
 
 export default function HeroSection() {

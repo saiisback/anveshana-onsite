@@ -91,8 +91,8 @@ export default function LanyardWithControls({
 
   // Share message templates
   const shareMessage = appliedName
-    ? `I'll be at Anveshana 2026! Check out my personalized lanyard`
-    : `Check out Anveshana 2026! Create your personalized event lanyard`;
+    ? `I'll be at Anveshana 3.0! Check out my personalized lanyard`
+    : `Check out Anveshana 3.0! Create your personalized event lanyard`;
 
   const handleShareX = useCallback(() => {
     const url = getShareableUrl();
@@ -274,8 +274,6 @@ export default function LanyardWithControls({
                     <p>Share on X</p>
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider delayDuration={200}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -291,8 +289,6 @@ export default function LanyardWithControls({
                     <p>Share on LinkedIn</p>
                   </TooltipContent>
                 </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider delayDuration={200}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button

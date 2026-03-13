@@ -1,9 +1,8 @@
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { TOKEN_EXPIRY_MS } from "@/lib/constants";
-import type { PrismaClient } from "@/generated/prisma";
 
-type TransactionClient = Parameters<Parameters<PrismaClient["$transaction"]>[0]>[0];
+type TransactionClient = Omit<typeof prisma, "$transaction" | "$connect" | "$disconnect" | "$on" | "$extends">;
 
 export function generateToken(): string {
   return crypto.randomBytes(32).toString("hex");
