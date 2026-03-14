@@ -33,6 +33,9 @@ import {
   XCircle,
   Search,
   FilterX,
+  Pencil,
+  Check,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { CandidateTeam } from "./page";
@@ -83,6 +86,8 @@ export function InvitationsClient({ teams }: { teams: CandidateTeam[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<Filters>(defaultFilters);
+  const [editingTeamName, setEditingTeamName] = useState(false);
+  const [editedName, setEditedName] = useState("");
 
   // Compute unique values for each filterable field
   const statuses = useUniqueValues(teamData, "status");
@@ -261,7 +266,24 @@ export function InvitationsClient({ teams }: { teams: CandidateTeam[] }) {
 
   function openDetails(team: CandidateTeam) {
     setSelectedTeam(team);
+    setEditingTeamName(false);
     setDialogOpen(true);
+  }
+
+  function saveTeamName() {
+    const trimmed = editedName.trim();
+    if (!trimmed || !selectedTeam) {
+      setEditingTeamName(false);
+      return;
+    }
+    setTeamData((prev) =>
+      prev.map((t) =>
+        t.teamId === selectedTeam.teamId ? { ...t, teamName: trimmed } : t
+      )
+    );
+    setSelectedTeam({ ...selectedTeam, teamName: trimmed });
+    setEditingTeamName(false);
+    toast.success("Team name updated");
   }
 
   return (
@@ -502,7 +524,54 @@ export function InvitationsClient({ teams }: { teams: CandidateTeam[] }) {
           {selectedTeam && (
             <>
               <DialogHeader>
-                <DialogTitle>{selectedTeam.teamName}</DialogTitle>
+                <DialogTitle>
+                  {editingTeamName ? (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={editedName}
+                        onChange={(e) => setEditedName(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") saveTeamName();
+                          if (e.key === "Escape") setEditingTeamName(false);
+                        }}
+                        autoFocus
+                        className="flex-1 rounded border bg-background px-2 py-1 text-base outline-none focus:ring-1 focus:ring-ring"
+                      />
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-7"
+                        onClick={saveTeamName}
+                      >
+                        <Check className="size-4 text-green-500" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-7"
+                        onClick={() => setEditingTeamName(false)}
+                      >
+                        <X className="size-4 text-muted-foreground" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      {selectedTeam.teamName}
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="size-7"
+                        onClick={() => {
+                          setEditedName(selectedTeam.teamName);
+                          setEditingTeamName(true);
+                        }}
+                      >
+                        <Pencil className="size-3.5 text-muted-foreground" />
+                      </Button>
+                    </div>
+                  )}
+                </DialogTitle>
                 <DialogDescription>
                   Rank #{selectedTeam.rank} &middot; Team ID:{" "}
                   {selectedTeam.teamId}
