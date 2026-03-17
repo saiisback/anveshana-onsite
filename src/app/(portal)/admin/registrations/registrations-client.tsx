@@ -28,6 +28,7 @@ import {
   Wifi,
   Table2,
   FileText,
+  Download,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -58,6 +59,85 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
   const [pendingTeams, setPendingTeams] = useState(teams);
   const [loadingId, setLoadingId] = useState<string | null>(null);
   const [selectedTeam, setSelectedTeam] = useState<PendingTeam | null>(null);
+  const [downloading, setDownloading] = useState(false);
+
+  function handleDownloadCsv() {
+    setDownloading(true);
+    try {
+      const headers = [
+        "Team",
+        "Lead Email",
+        "Members",
+        "Member Name",
+        "Member Email",
+        "Role",
+        "Power",
+        "Internet",
+        "Table Size",
+        "Additional Requirements",
+        "Submitted",
+      ];
+
+      const escapeCsv = (val: string) => {
+        if (val.includes(",") || val.includes('"') || val.includes("\n")) {
+          return `"${val.replace(/"/g, '""')}"`;
+        }
+        return val;
+      };
+
+      const rows: string[][] = [];
+      for (const team of pendingTeams) {
+        if (team.members.length > 0) {
+          for (const member of team.members) {
+            rows.push([
+              team.name,
+              team.leadEmail,
+              String(team.membersCount),
+              member.name,
+              member.email,
+              member.roleInTeam,
+              team.powerOutlet ? "Yes" : "No",
+              team.internetNeeded ? "Yes" : "No",
+              team.tableSize ?? "",
+              team.additionalRequirements ?? "",
+              new Date(team.createdAt).toLocaleDateString(),
+            ]);
+          }
+        } else {
+          rows.push([
+            team.name,
+            team.leadEmail,
+            String(team.membersCount),
+            "",
+            "",
+            "",
+            team.powerOutlet ? "Yes" : "No",
+            team.internetNeeded ? "Yes" : "No",
+            team.tableSize ?? "",
+            team.additionalRequirements ?? "",
+            new Date(team.createdAt).toLocaleDateString(),
+          ]);
+        }
+      }
+
+      const csvContent = [
+        headers.map(escapeCsv).join(","),
+        ...rows.map((row) => row.map(escapeCsv).join(",")),
+      ].join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `pending-rsvps-${new Date().toISOString().split("T")[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   async function handleApprove(teamId: string) {
     setLoadingId(teamId);
@@ -122,6 +202,17 @@ export function RegistrationsClient({ teams }: { teams: PendingTeam[] }) {
 
   return (
     <>
+      <div className="flex justify-end">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleDownloadCsv}
+          disabled={downloading}
+        >
+          <Download className="mr-1.5 size-3.5" />
+          {downloading ? "Downloading..." : "Download CSV"}
+        </Button>
+      </div>
       <div className="rounded-lg border">
         <Table>
           <TableHeader>

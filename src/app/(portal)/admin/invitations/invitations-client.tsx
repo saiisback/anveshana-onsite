@@ -36,7 +36,10 @@ import {
   Pencil,
   Check,
   X,
+  Plus,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import type { CandidateTeam } from "./page";
 
@@ -88,6 +91,22 @@ export function InvitationsClient({ teams }: { teams: CandidateTeam[] }) {
   const [filters, setFilters] = useState<Filters>(defaultFilters);
   const [editingTeamName, setEditingTeamName] = useState(false);
   const [editedName, setEditedName] = useState("");
+  const [addTeamOpen, setAddTeamOpen] = useState(false);
+  const [newTeam, setNewTeam] = useState({
+    teamName: "",
+    teamId: "",
+    candidateName: "",
+    candidateEmail: "",
+    candidateMobile: "",
+    candidateGender: "",
+    candidateLocation: "",
+    candidateRole: "Team Lead",
+    userType: "",
+    domain: "",
+    course: "",
+    specialization: "",
+    status: "Selected",
+  });
 
   // Compute unique values for each filterable field
   const statuses = useUniqueValues(teamData, "status");
@@ -286,6 +305,62 @@ export function InvitationsClient({ teams }: { teams: CandidateTeam[] }) {
     toast.success("Team name updated");
   }
 
+  function resetNewTeamForm() {
+    setNewTeam({
+      teamName: "",
+      teamId: "",
+      candidateName: "",
+      candidateEmail: "",
+      candidateMobile: "",
+      candidateGender: "",
+      candidateLocation: "",
+      candidateRole: "Team Lead",
+      userType: "",
+      domain: "",
+      course: "",
+      specialization: "",
+      status: "Selected",
+    });
+  }
+
+  function handleAddTeam() {
+    if (!newTeam.teamName.trim() || !newTeam.teamId.trim() || !newTeam.candidateName.trim() || !newTeam.candidateEmail.trim()) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    const exists = teamData.some(
+      (t) => t.teamId === newTeam.teamId.trim() || t.candidateEmail.toLowerCase() === newTeam.candidateEmail.trim().toLowerCase()
+    );
+    if (exists) {
+      toast.error("A team with this ID or email already exists");
+      return;
+    }
+
+    const team: CandidateTeam = {
+      rank: String(teamData.length + 1),
+      teamName: newTeam.teamName.trim(),
+      teamId: newTeam.teamId.trim(),
+      candidateName: newTeam.candidateName.trim(),
+      candidateEmail: newTeam.candidateEmail.trim(),
+      candidateMobile: newTeam.candidateMobile.trim(),
+      candidateGender: newTeam.candidateGender.trim(),
+      candidateLocation: newTeam.candidateLocation.trim(),
+      candidateRole: newTeam.candidateRole.trim(),
+      userType: newTeam.userType.trim(),
+      domain: newTeam.domain.trim(),
+      course: newTeam.course.trim(),
+      specialization: newTeam.specialization.trim(),
+      status: newTeam.status.trim(),
+      mailSent: false,
+    };
+
+    setTeamData((prev) => [...prev, team]);
+    setAddTeamOpen(false);
+    resetNewTeamForm();
+    toast.success(`Team "${team.teamName}" added`);
+  }
+
   return (
     <div className="space-y-4">
       {/* Stats and actions */}
@@ -306,17 +381,26 @@ export function InvitationsClient({ teams }: { teams: CandidateTeam[] }) {
             </Badge>
           )}
         </div>
-        <Button
-          onClick={handleSendSelected}
-          disabled={sendingSelected || checkedUnsent.length === 0}
-        >
-          {sendingSelected ? (
-            <Loader2 className="mr-1.5 size-4 animate-spin" />
-          ) : (
-            <Send className="mr-1.5 size-4" />
-          )}
-          Send Selected ({checkedUnsent.length})
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setAddTeamOpen(true)}
+          >
+            <Plus className="mr-1.5 size-4" />
+            Add Team
+          </Button>
+          <Button
+            onClick={handleSendSelected}
+            disabled={sendingSelected || checkedUnsent.length === 0}
+          >
+            {sendingSelected ? (
+              <Loader2 className="mr-1.5 size-4 animate-spin" />
+            ) : (
+              <Send className="mr-1.5 size-4" />
+            )}
+            Send Selected ({checkedUnsent.length})
+          </Button>
+        </div>
       </div>
 
       {/* Search */}
@@ -644,6 +728,165 @@ export function InvitationsClient({ teams }: { teams: CandidateTeam[] }) {
               </DialogFooter>
             </>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Add New Team dialog */}
+      <Dialog open={addTeamOpen} onOpenChange={(open) => { setAddTeamOpen(open); if (!open) resetNewTeamForm(); }}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add New Team</DialogTitle>
+            <DialogDescription>
+              Manually add a team to the invitations list.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-teamName">Team Name *</Label>
+                <Input
+                  id="add-teamName"
+                  placeholder="Team name"
+                  value={newTeam.teamName}
+                  onChange={(e) => setNewTeam((p) => ({ ...p, teamName: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-teamId">Team ID *</Label>
+                <Input
+                  id="add-teamId"
+                  placeholder="e.g. ANV-001"
+                  value={newTeam.teamId}
+                  onChange={(e) => setNewTeam((p) => ({ ...p, teamId: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-candidateName">Leader Name *</Label>
+                <Input
+                  id="add-candidateName"
+                  placeholder="Full name"
+                  value={newTeam.candidateName}
+                  onChange={(e) => setNewTeam((p) => ({ ...p, candidateName: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-candidateEmail">Leader Email *</Label>
+                <Input
+                  id="add-candidateEmail"
+                  type="email"
+                  placeholder="email@example.com"
+                  value={newTeam.candidateEmail}
+                  onChange={(e) => setNewTeam((p) => ({ ...p, candidateEmail: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-candidateMobile">Mobile</Label>
+                <Input
+                  id="add-candidateMobile"
+                  placeholder="Phone number"
+                  value={newTeam.candidateMobile}
+                  onChange={(e) => setNewTeam((p) => ({ ...p, candidateMobile: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-candidateGender">Gender</Label>
+                <Select
+                  value={newTeam.candidateGender || "__none__"}
+                  onValueChange={(v) => { if (v !== null) setNewTeam((p) => ({ ...p, candidateGender: v === "__none__" ? "" : v })); }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">Select gender</SelectItem>
+                    <SelectItem value="M">Male</SelectItem>
+                    <SelectItem value="F">Female</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-candidateLocation">Location</Label>
+                <Input
+                  id="add-candidateLocation"
+                  placeholder="City"
+                  value={newTeam.candidateLocation}
+                  onChange={(e) => setNewTeam((p) => ({ ...p, candidateLocation: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-userType">User Type</Label>
+                <Input
+                  id="add-userType"
+                  placeholder="e.g. Student, Professional"
+                  value={newTeam.userType}
+                  onChange={(e) => setNewTeam((p) => ({ ...p, userType: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-domain">Domain</Label>
+                <Input
+                  id="add-domain"
+                  placeholder="e.g. AI/ML, IoT"
+                  value={newTeam.domain}
+                  onChange={(e) => setNewTeam((p) => ({ ...p, domain: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-course">Course</Label>
+                <Input
+                  id="add-course"
+                  placeholder="e.g. B.Tech, M.Tech"
+                  value={newTeam.course}
+                  onChange={(e) => setNewTeam((p) => ({ ...p, course: e.target.value }))}
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="add-specialization">Specialization</Label>
+                <Input
+                  id="add-specialization"
+                  placeholder="e.g. CSE, ECE"
+                  value={newTeam.specialization}
+                  onChange={(e) => setNewTeam((p) => ({ ...p, specialization: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="add-status">Status</Label>
+                <Select
+                  value={newTeam.status}
+                  onValueChange={(v) => { if (v !== null) setNewTeam((p) => ({ ...p, status: v })); }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Selected">Selected</SelectItem>
+                    <SelectItem value="Waitlisted">Waitlisted</SelectItem>
+                    <SelectItem value="Rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setAddTeamOpen(false); resetNewTeamForm(); }}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddTeam}>
+              <Plus className="mr-1.5 size-4" />
+              Add Team
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
