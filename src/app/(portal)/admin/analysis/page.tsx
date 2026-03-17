@@ -24,6 +24,7 @@ import {
   Shield,
   MapPin,
 } from "lucide-react";
+import { DownloadRsvpButton } from "./download-rsvp-button";
 
 export default async function AnalysisPage() {
   const session = await getSession();
@@ -342,9 +343,12 @@ export default async function AnalysisPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Mail className="size-4 text-primary" />
-              Invitation & RSVP Funnel
+            <CardTitle className="flex items-center justify-between text-base">
+              <span className="flex items-center gap-2">
+                <Mail className="size-4 text-primary" />
+                Invitation & RSVP Funnel
+              </span>
+              <DownloadRsvpButton />
             </CardTitle>
             <CardDescription>
               {totalInvitations} invitations sent
