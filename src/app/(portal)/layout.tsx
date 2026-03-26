@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
-import { AiAssistant } from "@/components/ai-assistant";
+
 import { getSession, getUserRole, type Role } from "@/lib/auth-server";
 import { cn } from "@/lib/utils";
 
@@ -39,8 +39,6 @@ export default async function PortalLayout({
         </div>
       </main>
 
-      {/* AI Assistant — available to participants */}
-      {castRole === "PARTICIPANT" && <AiAssistant />}
     </div>
   );
 }
