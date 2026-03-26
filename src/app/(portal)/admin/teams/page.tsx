@@ -62,7 +62,12 @@ export default async function AdminTeamsPage() {
             <TableBody>
               {teams.map((team) => (
                 <TableRow key={team.id}>
-                  <TableCell className="font-medium">{team.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <div>{team.name}</div>
+                    {team.prototypeTitle && (
+                      <div className="text-xs text-muted-foreground">{team.prototypeTitle}</div>
+                    )}
+                  </TableCell>
                   <TableCell>{team.prototypeTitle}</TableCell>
                   <TableCell className="text-center">
                     <Badge variant="outline">
