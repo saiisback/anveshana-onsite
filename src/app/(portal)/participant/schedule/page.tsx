@@ -14,6 +14,7 @@ import {
   UtensilsCrossed,
   Gavel,
   UserCheck,
+  Trophy,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -92,6 +93,14 @@ const AFTER_JUDGING: TimelineItem[] = [
     description: "You will be notified through the app when food is ready. A volunteer will guide you to the food area.",
     icon: UtensilsCrossed,
     color: "text-green-500",
+    type: "event",
+  },
+  {
+    time: "Evening",
+    title: "Closing Ceremony",
+    description: "Results announcement, prize distribution, and vote of thanks. Make sure to be present for the finale!",
+    icon: Trophy,
+    color: "text-amber-500",
     type: "event",
   },
 ];

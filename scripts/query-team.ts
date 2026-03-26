@@ -17,3 +17,4 @@ async function main() {
   console.log("All users:", JSON.stringify(allUsers, null, 2));
 }
 main().catch(e => console.error(e.message)).finally(() => prisma.$disconnect());
+
