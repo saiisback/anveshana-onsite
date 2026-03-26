@@ -42,12 +42,30 @@ export default async function ParticipantProfilePage() {
           Your Profile
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Your account information and team QR code
+          Your account information and personal QR code
         </p>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-2">
         {/* User Info Card */}
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <QrCode className="size-4 text-primary" />
+              Your QR Code
+            </CardTitle>
+            <CardDescription>
+              Show this to volunteers for check-in and food distribution
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center justify-center py-4">
+            <ProfileQRCode
+              value={`anveshana-user-${user.id}`}
+              userName={user.name}
+            />
+          </CardContent>
+        </Card>
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
@@ -98,37 +116,7 @@ export default async function ParticipantProfilePage() {
           </CardContent>
         </Card>
 
-        {/* QR Code Card */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <QrCode className="size-4 text-primary" />
-              Team QR Code
-            </CardTitle>
-            <CardDescription>
-              Show this to volunteers for check-in and food distribution
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center py-4">
-            {team?.qrCode ? (
-              <ProfileQRCode value={team.qrCode} teamName={team.name} />
-            ) : (
-              <div className="flex flex-col items-center gap-3 py-8 text-center">
-                <QrCode className="size-16 text-muted-foreground/30" />
-                <div>
-                  <p className="font-medium text-muted-foreground">
-                    QR Code Not Available
-                  </p>
-                  <p className="text-sm text-muted-foreground/70">
-                    {team
-                      ? "Your team is pending approval. QR code will be generated once approved."
-                      : "You are not assigned to a team yet."}
-                  </p>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+   
       </div>
 
       {/* Team Members */}

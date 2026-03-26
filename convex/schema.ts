@@ -89,9 +89,9 @@ export default defineSchema({
   }),
 
   foodDistributions: defineTable({
-    teamId: v.string(),
-    teamName: v.string(),
-    visitorName: v.optional(v.string()),
+    visitorId: v.string(),
+    visitorName: v.string(),
+    teamName: v.optional(v.string()),
     distributedBy: v.string(),
     distributedByName: v.string(),
     mealType: v.union(
@@ -101,7 +101,7 @@ export default defineSchema({
       v.literal("Snack")
     ),
   })
-    .index("by_team", ["teamId"])
-    .index("by_team_meal", ["teamId", "mealType"])
+    .index("by_visitor", ["visitorId"])
+    .index("by_visitor_meal", ["visitorId", "mealType"])
     .index("by_meal", ["mealType"]),
 });

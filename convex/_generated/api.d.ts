@@ -10,7 +10,9 @@
 
 import type * as announcements from "../announcements.js";
 import type * as checkIns from "../checkIns.js";
+import type * as foodDistributions from "../foodDistributions.js";
 import type * as helpRequests from "../helpRequests.js";
+import type * as judging from "../judging.js";
 import type * as notifications from "../notifications.js";
 
 import type {
@@ -22,7 +24,9 @@ import type {
 declare const fullApi: ApiFromModules<{
   announcements: typeof announcements;
   checkIns: typeof checkIns;
+  foodDistributions: typeof foodDistributions;
   helpRequests: typeof helpRequests;
+  judging: typeof judging;
   notifications: typeof notifications;
 }>;
 

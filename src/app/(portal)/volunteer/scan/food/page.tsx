@@ -19,22 +19,23 @@ import {
   AlertTriangle,
 } from "lucide-react";
 
-const QR_PREFIX = "anveshana-team-";
+const QR_PREFIX_USER = "anveshana-user-";
+const QR_PREFIX_TEAM = "anveshana-team-";
 
 type MealType = "Breakfast" | "Lunch" | "Dinner" | "Snack";
 
 type ScanState =
   | { step: "scanning" }
-  | { step: "validating"; teamId: string }
+  | { step: "validating"; visitorId: string }
   | {
       step: "confirming";
-      teamId: string;
-      teamName: string;
-      stallNumber: number | null;
+      visitorId: string;
+      visitorName: string;
+      teamName: string | null;
       alreadyServed: boolean;
     }
-  | { step: "distributing"; teamId: string; teamName: string }
-  | { step: "success"; teamName: string }
+  | { step: "distributing"; visitorId: string; visitorName: string }
+  | { step: "success"; visitorName: string }
   | { step: "error"; message: string };
 
 const MEAL_OPTIONS: MealType[] = ["Breakfast", "Lunch", "Dinner", "Snack"];
@@ -47,21 +48,21 @@ export default function FoodScannerPage() {
   const [scanState, setScanState] = useState<ScanState>({ step: "scanning" });
   const [selectedMeal, setSelectedMeal] = useState<MealType>("Lunch");
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [currentTeamId, setCurrentTeamId] = useState<string | null>(null);
+  const [currentVisitorId, setCurrentVisitorId] = useState<string | null>(null);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
   const scannerDivId = "qr-reader-food";
 
   const createDistribution = useMutation(api.foodDistributions.create);
   const existingDistributions = useQuery(
-    api.foodDistributions.getByTeamAndMeal,
-    currentTeamId ? { teamId: currentTeamId, mealType: selectedMeal } : "skip"
+    api.foodDistributions.getByVisitorAndMeal,
+    currentVisitorId ? { visitorId: currentVisitorId, mealType: selectedMeal } : "skip"
   );
   const recentDistributions = useQuery(api.foodDistributions.listRecent, {});
   const stats = useQuery(api.foodDistributions.getStats, {});
 
   const resetScanner = useCallback(() => {
     setScanState({ step: "scanning" });
-    setCurrentTeamId(null);
+    setCurrentVisitorId(null);
     setCameraError(null);
     if (scannerRef.current) {
       try {
@@ -74,7 +75,19 @@ export default function FoodScannerPage() {
 
   const handleScanSuccess = useCallback(
     async (decodedText: string) => {
-      if (!decodedText.startsWith(QR_PREFIX)) {
+      let userId: string | null = null;
+
+      // Check for user QR code format
+      if (decodedText.startsWith(QR_PREFIX_USER)) {
+        userId = decodedText.slice(QR_PREFIX_USER.length);
+      } else if (decodedText.startsWith(QR_PREFIX_TEAM)) {
+        // Legacy team QR - not supported for food distribution
+        setScanState({
+          step: "error",
+          message: "Please scan a personal QR code, not a team QR code",
+        });
+        return;
+      } else {
         setScanState({
           step: "error",
           message: "Not a valid Anveshana QR code",
@@ -82,11 +95,10 @@ export default function FoodScannerPage() {
         return;
       }
 
-      const teamId = decodedText.slice(QR_PREFIX.length);
-      if (!teamId) {
+      if (!userId) {
         setScanState({
           step: "error",
-          message: "Invalid QR code: no team ID found",
+          message: "Invalid QR code: no user ID found",
         });
         return;
       }
@@ -100,12 +112,12 @@ export default function FoodScannerPage() {
         }
       }
 
-      setScanState({ step: "validating", teamId });
-      setCurrentTeamId(teamId);
+      setScanState({ step: "validating", visitorId: userId });
+      setCurrentVisitorId(userId);
 
       try {
         const res = await fetch(
-          `/api/admin/teams/validate?teamId=${encodeURIComponent(teamId)}`
+          `/api/admin/users/validate?userId=${encodeURIComponent(userId)}`
         );
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
@@ -113,20 +125,19 @@ export default function FoodScannerPage() {
             step: "error",
             message:
               res.status === 404
-                ? "Team not found"
-                : (data.error ?? "Failed to validate team"),
+                ? "User not found"
+                : (data.error ?? "Failed to validate user"),
           });
           return;
         }
 
-        const team = await res.json();
+        const user = await res.json();
 
-        // Check if already served — this will be checked with Convex query
         setScanState({
           step: "confirming",
-          teamId: team.id,
-          teamName: team.name,
-          stallNumber: team.stallNumber,
+          visitorId: user.id,
+          visitorName: user.name,
+          teamName: user.team?.name ?? null,
           alreadyServed: false, // Will be updated by useEffect
         });
       } catch {
@@ -192,19 +203,20 @@ export default function FoodScannerPage() {
   const handleConfirmDistribution = async () => {
     if (scanState.step !== "confirming") return;
 
-    const { teamId, teamName } = scanState;
-    setScanState({ step: "distributing", teamId, teamName });
+    const { visitorId, visitorName, teamName } = scanState;
+    setScanState({ step: "distributing", visitorId, visitorName });
 
     try {
       await createDistribution({
-        teamId,
-        teamName,
+        visitorId,
+        visitorName,
+        teamName: teamName ?? undefined,
         distributedBy: volunteerId,
         distributedByName: volunteerName,
         mealType: selectedMeal,
       });
-      setScanState({ step: "success", teamName });
-      toast.success(`${selectedMeal} distributed to "${teamName}"!`);
+      setScanState({ step: "success", visitorName });
+      toast.success(`${selectedMeal} distributed to "${visitorName}"!`);
 
       // Auto-reset after 2 seconds
       setTimeout(() => {
@@ -247,7 +259,7 @@ export default function FoodScannerPage() {
           Food Distribution
         </h1>
         <p className="text-sm text-muted-foreground">
-          Scan a team&apos;s QR code to record meal distribution.
+          Scan a participant&apos;s personal QR code to record meal distribution.
         </p>
       </div>
 
@@ -321,7 +333,7 @@ export default function FoodScannerPage() {
             <div className="flex items-center justify-center gap-2 py-8">
               <Loader2 className="size-5 animate-spin" />
               <span className="text-sm text-muted-foreground">
-                Validating team...
+                Validating participant...
               </span>
             </div>
           )}
@@ -333,10 +345,10 @@ export default function FoodScannerPage() {
                 <p className="text-sm text-muted-foreground">
                   Distribute {selectedMeal} to:
                 </p>
-                <p className="text-lg font-semibold">{scanState.teamName}</p>
-                {scanState.stallNumber !== null && (
+                <p className="text-lg font-semibold">{scanState.visitorName}</p>
+                {scanState.teamName && (
                   <Badge variant="outline" className="mt-1">
-                    Stall #{scanState.stallNumber}
+                    {scanState.teamName}
                   </Badge>
                 )}
               </div>
@@ -345,7 +357,7 @@ export default function FoodScannerPage() {
                 <div className="mx-auto flex max-w-xs items-center gap-2 rounded-lg border border-yellow-500/50 bg-yellow-500/10 p-3">
                   <AlertTriangle className="size-5 text-yellow-500" />
                   <p className="text-sm text-yellow-600 dark:text-yellow-400">
-                    This team has already received {selectedMeal} today.
+                    This person has already received {selectedMeal} today.
                   </p>
                 </div>
               )}
@@ -370,7 +382,7 @@ export default function FoodScannerPage() {
             <div className="flex items-center justify-center gap-2 py-8">
               <Loader2 className="size-5 animate-spin" />
               <span className="text-sm text-muted-foreground">
-                Recording distribution for {scanState.teamName}...
+                Recording distribution for {scanState.visitorName}...
               </span>
             </div>
           )}
@@ -380,7 +392,7 @@ export default function FoodScannerPage() {
             <div className="flex flex-col items-center gap-2 py-8">
               <CheckCircle2 className="size-8 text-green-500" />
               <p className="text-sm font-medium">
-                {selectedMeal} distributed to {scanState.teamName}!
+                {selectedMeal} distributed to {scanState.visitorName}!
               </p>
               <p className="text-xs text-muted-foreground">
                 Resetting scanner...
@@ -431,7 +443,7 @@ export default function FoodScannerPage() {
                     <Badge variant="outline" className="text-xs">
                       {dist.mealType}
                     </Badge>
-                    <span className="font-medium">{dist.teamName}</span>
+                    <span className="font-medium">{dist.visitorName}</span>
                   </div>
                   <span className="text-xs text-muted-foreground">
                     {new Date(dist._creationTime).toLocaleTimeString()}

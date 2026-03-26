@@ -31,6 +31,8 @@ import {
   Lock,
   BookOpen,
   UserPlus,
+  User,
+  UtensilsCrossed,
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -52,6 +54,7 @@ interface NavItem {
 const navItems: Partial<Record<Role, NavItem[]>> = {
   PARTICIPANT: [
     { label: "Home", href: "/participant", icon: <LayoutDashboard className="size-5" /> },
+    { label: "Profile", href: "/participant/profile", icon: <User className="size-5" /> },
     { label: "Schedule", href: "/participant/schedule", icon: <Calendar className="size-5" /> },
     { label: "Instructions", href: "/participant/instructions", icon: <BookOpen className="size-5" /> },
     { label: "Help", href: "/participant/help", icon: <HelpCircle className="size-5" /> },
@@ -59,9 +62,9 @@ const navItems: Partial<Record<Role, NavItem[]>> = {
   ],
   VOLUNTEER: [
     { label: "Home", href: "/volunteer", icon: <LayoutDashboard className="size-5" /> },
-    { label: "Scan", href: "/volunteer/scan", icon: <ScanLine className="size-5" /> },
+    { label: "Check-in", href: "/volunteer/scan", icon: <ScanLine className="size-5" /> },
+    { label: "Food", href: "/volunteer/scan/food", icon: <UtensilsCrossed className="size-5" /> },
     { label: "Requests", href: "/volunteer/requests", icon: <Inbox className="size-5" /> },
-    { label: "Map", href: "/volunteer/map", icon: <Map className="size-5" /> },
     { label: "Alerts", href: "/volunteer/notifications", icon: <Bell className="size-5" /> },
   ],
   JUDGE: [

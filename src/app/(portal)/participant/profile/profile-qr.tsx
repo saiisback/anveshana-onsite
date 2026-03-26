@@ -8,10 +8,10 @@ import { Download } from "lucide-react";
 
 interface ProfileQRCodeProps {
   value: string;
-  teamName: string;
+  userName: string;
 }
 
-export function ProfileQRCode({ value, teamName }: ProfileQRCodeProps) {
+export function ProfileQRCode({ value, userName }: ProfileQRCodeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [loading, setLoading] = useState(true);
 
@@ -39,7 +39,7 @@ export function ProfileQRCode({ value, teamName }: ProfileQRCodeProps) {
   function handleDownload() {
     if (!canvasRef.current) return;
     const link = document.createElement("a");
-    link.download = `${teamName.replace(/\s+/g, "-").toLowerCase()}-qr.png`;
+    link.download = `${userName.replace(/\s+/g, "-").toLowerCase()}-qr.png`;
     link.href = canvasRef.current.toDataURL("image/png");
     link.click();
   }
@@ -53,8 +53,7 @@ export function ProfileQRCode({ value, teamName }: ProfileQRCodeProps) {
         />
       </div>
       <div className="text-center">
-        <p className="font-medium">{teamName}</p>
-        <p className="text-xs text-muted-foreground">{value}</p>
+        <p className="font-medium">{userName}</p>
       </div>
       <Button variant="outline" size="sm" onClick={handleDownload}>
         <Download className="mr-1.5 size-4" />

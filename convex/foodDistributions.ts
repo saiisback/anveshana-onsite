@@ -3,9 +3,9 @@ import { v } from "convex/values";
 
 export const create = mutation({
   args: {
-    teamId: v.string(),
-    teamName: v.string(),
-    visitorName: v.optional(v.string()),
+    visitorId: v.string(),
+    visitorName: v.string(),
+    teamName: v.optional(v.string()),
     distributedBy: v.string(),
     distributedByName: v.string(),
     mealType: v.union(
@@ -20,9 +20,9 @@ export const create = mutation({
   },
 });
 
-export const getByTeamAndMeal = query({
+export const getByVisitorAndMeal = query({
   args: {
-    teamId: v.string(),
+    visitorId: v.string(),
     mealType: v.union(
       v.literal("Breakfast"),
       v.literal("Lunch"),
@@ -33,21 +33,21 @@ export const getByTeamAndMeal = query({
   handler: async (ctx, args) => {
     return await ctx.db
       .query("foodDistributions")
-      .withIndex("by_team_meal", (q) =>
-        q.eq("teamId", args.teamId).eq("mealType", args.mealType)
+      .withIndex("by_visitor_meal", (q) =>
+        q.eq("visitorId", args.visitorId).eq("mealType", args.mealType)
       )
       .collect();
   },
 });
 
-export const getByTeam = query({
+export const getByVisitor = query({
   args: {
-    teamId: v.string(),
+    visitorId: v.string(),
   },
   handler: async (ctx, args) => {
     return await ctx.db
       .query("foodDistributions")
-      .withIndex("by_team", (q) => q.eq("teamId", args.teamId))
+      .withIndex("by_visitor", (q) => q.eq("visitorId", args.visitorId))
       .collect();
   },
 });
