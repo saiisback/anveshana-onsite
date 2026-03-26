@@ -111,42 +111,6 @@ export default function InstructionsPage() {
         </CardContent>
       </Card>
 
-      {/* Event Timeline */}
-      <div className="space-y-3">
-        <h2 className="font-mono text-lg font-semibold text-foreground">
-          Event Timeline
-        </h2>
-        <div className="relative space-y-3">
-          {/* Vertical line */}
-          <div className="absolute left-[19px] top-2 bottom-2 w-px bg-border" />
-
-          {TIMELINE.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Card key={item.title} className="relative ml-10">
-                {/* Timeline dot */}
-                <div className="absolute -left-10 top-4 flex size-[38px] items-center justify-center rounded-full border border-border bg-background">
-                  <Icon className={`size-4 ${item.color}`} />
-                </div>
-                <CardContent className="py-4">
-                  <Badge
-                    variant="outline"
-                    className="mb-2 font-mono text-xs"
-                  >
-                    {item.time}
-                  </Badge>
-                  <h3 className="text-sm font-semibold text-foreground">
-                    {item.title}
-                  </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {item.description}
-                  </p>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </div>
 
       {/* Judging Rules */}
       <Card className="border-orange-500/20">
