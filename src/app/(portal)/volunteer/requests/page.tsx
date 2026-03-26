@@ -97,8 +97,8 @@ export default function VolunteerRequestsPage() {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col">
+        <TabsList className="w-full flex-wrap">
           <TabsTrigger value="all">
             All ({activeRequests.length})
           </TabsTrigger>
@@ -111,14 +111,12 @@ export default function VolunteerRequestsPage() {
         </TabsList>
 
         {["all", "open", "mine"].map((tab) => (
-          <TabsContent key={tab} value={tab}>
-            {allRequests === undefined && (
+          <TabsContent key={tab} value={tab} className="mt-4 w-full">
+            {allRequests === undefined ? (
               <p className="py-8 text-center text-sm text-muted-foreground">
                 Loading...
               </p>
-            )}
-
-            {displayedRequests.length === 0 && allRequests !== undefined && (
+            ) : displayedRequests.length === 0 ? (
               <Card>
                 <CardContent className="py-8 text-center text-muted-foreground">
                   {tab === "open"
@@ -128,8 +126,7 @@ export default function VolunteerRequestsPage() {
                       : "No active help requests."}
                 </CardContent>
               </Card>
-            )}
-
+            ) : (
             <div className="space-y-3">
               {displayedRequests.map((req) => (
                 <Card key={req._id}>
@@ -213,6 +210,7 @@ export default function VolunteerRequestsPage() {
                 </Card>
               ))}
             </div>
+            )}
           </TabsContent>
         ))}
       </Tabs>
