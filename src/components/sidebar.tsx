@@ -90,7 +90,13 @@ const navItems: Partial<Record<Role, NavItem[]>> = {
 const useBottomNav = (role: Role) => role === "PARTICIPANT" || role === "VOLUNTEER" || role === "JUDGE";
 
 function isNavActive(pathname: string, href: string): boolean {
-  return pathname === href || (href !== "/" && pathname.startsWith(href + "/"));
+  // Exact match for root dashboard paths (e.g., /participant, /volunteer, /admin, /judge)
+  const rootPaths = ["/participant", "/volunteer", "/admin", "/judge"];
+  if (rootPaths.includes(href)) {
+    return pathname === href;
+  }
+  // For other paths, allow prefix matching for nested routes
+  return pathname === href || pathname.startsWith(href + "/");
 }
 
 interface SidebarProps {

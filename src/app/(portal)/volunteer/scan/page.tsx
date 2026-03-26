@@ -9,14 +9,21 @@ import { toast } from "sonner";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, CheckCircle2, XCircle, Camera, RotateCcw, AlertTriangle } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, Camera, RotateCcw, AlertTriangle, Info } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const USER_QR_PREFIX = "anveshana-user-";
 
 type ScanState =
   | { step: "scanning" }
   | { step: "validating"; visitorId: string }
-  | { step: "confirming"; visitorId: string; visitorName: string; teamName: string | null; alreadyCheckedIn: boolean }
+  | { step: "confirming"; visitorId: string; visitorName: string; visitorEmail: string; visitorRole: string; teamName: string | null; teamStall: number | null; alreadyCheckedIn: boolean }
   | { step: "checking-in"; visitorId: string; visitorName: string }
   | { step: "success"; visitorName: string }
   | { step: "error"; message: string };
@@ -96,7 +103,10 @@ export default function VolunteerScanPage() {
         step: "confirming",
         visitorId: user.id,
         visitorName: user.name,
+        visitorEmail: user.email,
+        visitorRole: user.role,
         teamName: user.team?.name ?? null,
+        teamStall: user.team?.stallNumber ?? null,
         alreadyCheckedIn,
       });
     } catch {
@@ -257,6 +267,59 @@ export default function VolunteerScanPage() {
                   <span className="text-sm font-medium">Already checked in</span>
                 </div>
               )}
+
+              {/* See Info Dialog */}
+              <div className="flex justify-center">
+                <Dialog>
+                  <DialogTrigger
+                    render={
+                      <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
+                        <Info className="size-4" />
+                        See Full Info
+                      </Button>
+                    }
+                  />
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Participant Info</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-3 pt-2">
+                      <div className="flex justify-between border-b pb-2">
+                        <span className="text-sm text-muted-foreground">Name</span>
+                        <span className="text-sm font-medium">{scanState.visitorName}</span>
+                      </div>
+                      <div className="flex justify-between border-b pb-2">
+                        <span className="text-sm text-muted-foreground">Email</span>
+                        <span className="text-sm font-medium">{scanState.visitorEmail}</span>
+                      </div>
+                      <div className="flex justify-between border-b pb-2">
+                        <span className="text-sm text-muted-foreground">Role</span>
+                        <Badge variant="secondary">{scanState.visitorRole}</Badge>
+                      </div>
+                      {scanState.teamName && (
+                        <>
+                          <div className="flex justify-between border-b pb-2">
+                            <span className="text-sm text-muted-foreground">Team</span>
+                            <span className="text-sm font-medium">{scanState.teamName}</span>
+                          </div>
+                          {scanState.teamStall && (
+                            <div className="flex justify-between border-b pb-2">
+                              <span className="text-sm text-muted-foreground">Stall Number</span>
+                              <Badge variant="outline">#{scanState.teamStall}</Badge>
+                            </div>
+                          )}
+                        </>
+                      )}
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">Check-in Status</span>
+                        <Badge variant={scanState.alreadyCheckedIn ? "default" : "secondary"}>
+                          {scanState.alreadyCheckedIn ? "Already Checked In" : "Not Checked In"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
 
               <div className="flex justify-center gap-3">
                 <Button variant="outline" onClick={handleCancel}>

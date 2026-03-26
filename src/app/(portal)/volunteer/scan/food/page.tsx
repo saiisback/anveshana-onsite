@@ -17,7 +17,15 @@ import {
   RotateCcw,
   UtensilsCrossed,
   AlertTriangle,
+  Info,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const QR_PREFIX_USER = "anveshana-user-";
 const QR_PREFIX_TEAM = "anveshana-team-";
@@ -31,7 +39,10 @@ type ScanState =
       step: "confirming";
       visitorId: string;
       visitorName: string;
+      visitorEmail: string;
+      visitorRole: string;
       teamName: string | null;
+      teamStall: number | null;
       alreadyServed: boolean;
     }
   | { step: "distributing"; visitorId: string; visitorName: string }
@@ -137,7 +148,10 @@ export default function FoodScannerPage() {
           step: "confirming",
           visitorId: user.id,
           visitorName: user.name,
+          visitorEmail: user.email,
+          visitorRole: user.role,
           teamName: user.team?.name ?? null,
+          teamStall: user.team?.stallNumber ?? null,
           alreadyServed: false, // Will be updated by useEffect
         });
       } catch {
@@ -362,16 +376,69 @@ export default function FoodScannerPage() {
                 </div>
               )}
 
+              {/* See Info Dialog */}
+              <div className="flex justify-center">
+                <Dialog>
+                  <DialogTrigger
+                    render={
+                      <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
+                        <Info className="size-4" />
+                        See Full Info
+                      </Button>
+                    }
+                  />
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Participant Info</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-3 pt-2">
+                      <div className="flex justify-between border-b pb-2">
+                        <span className="text-sm text-muted-foreground">Name</span>
+                        <span className="text-sm font-medium">{scanState.visitorName}</span>
+                      </div>
+                      <div className="flex justify-between border-b pb-2">
+                        <span className="text-sm text-muted-foreground">Email</span>
+                        <span className="text-sm font-medium">{scanState.visitorEmail}</span>
+                      </div>
+                      <div className="flex justify-between border-b pb-2">
+                        <span className="text-sm text-muted-foreground">Role</span>
+                        <Badge variant="secondary">{scanState.visitorRole}</Badge>
+                      </div>
+                      {scanState.teamName && (
+                        <>
+                          <div className="flex justify-between border-b pb-2">
+                            <span className="text-sm text-muted-foreground">Team</span>
+                            <span className="text-sm font-medium">{scanState.teamName}</span>
+                          </div>
+                          {scanState.teamStall && (
+                            <div className="flex justify-between border-b pb-2">
+                              <span className="text-sm text-muted-foreground">Stall Number</span>
+                              <Badge variant="outline">#{scanState.teamStall}</Badge>
+                            </div>
+                          )}
+                        </>
+                      )}
+                      <div className="flex justify-between">
+                        <span className="text-sm text-muted-foreground">{selectedMeal} Status</span>
+                        <Badge variant={scanState.alreadyServed ? "default" : "secondary"}>
+                          {scanState.alreadyServed ? "Already Received" : "Not Received"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
               <div className="flex justify-center gap-3">
                 <Button variant="outline" onClick={handleCancel}>
                   Cancel
                 </Button>
                 <Button
                   onClick={handleConfirmDistribution}
-                  variant={scanState.alreadyServed ? "destructive" : "default"}
+                  disabled={scanState.alreadyServed}
                 >
                   <CheckCircle2 className="mr-1.5 size-4" />
-                  {scanState.alreadyServed ? "Distribute Anyway" : "Confirm"}
+                  Confirm
                 </Button>
               </div>
             </div>
