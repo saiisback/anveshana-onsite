@@ -87,4 +87,21 @@ export default defineSchema({
     ),
     createdBy: v.string(),
   }),
+
+  foodDistributions: defineTable({
+    teamId: v.string(),
+    teamName: v.string(),
+    visitorName: v.optional(v.string()),
+    distributedBy: v.string(),
+    distributedByName: v.string(),
+    mealType: v.union(
+      v.literal("Breakfast"),
+      v.literal("Lunch"),
+      v.literal("Dinner"),
+      v.literal("Snack")
+    ),
+  })
+    .index("by_team", ["teamId"])
+    .index("by_team_meal", ["teamId", "mealType"])
+    .index("by_meal", ["mealType"]),
 });

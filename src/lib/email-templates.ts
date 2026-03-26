@@ -359,3 +359,36 @@ export function passwordSetupEmail(name: string, setupUrl: string) {
     ${fallbackLink(setupUrl)}
   `);
 }
+
+export function volunteerApprovedEmail(name: string, setupUrl: string) {
+  const safeName = escapeHtml(name);
+  return baseLayout(`
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="center" style="padding-bottom: 20px;">
+          <span style="font-size: 48px;">&#x1F64C;</span>
+        </td>
+      </tr>
+    </table>
+
+    <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa; text-align: center;">Welcome to the Team!</h2>
+    <p style="margin: 0 0 24px; font-size: 14px; color: #a3a3a3; text-align: center; line-height: 1.7;">
+      Hi <strong style="color: #e5e5e5;">${safeName}</strong>, your volunteer application has been ${badge("APPROVED", "success")}!<br/>
+      Set up your password to access the volunteer portal.
+    </p>
+
+    ${infoBox(`
+      ${infoRow("&#x1F464;", "Name", safeName)}
+      ${infoRow("&#x1F3AF;", "Role", "Volunteer")}
+      ${infoRow("&#x23F3;", "Link Expires", "7 Days")}
+    `)}
+
+    ${ctaButton(setupUrl, "&#x1F512;&nbsp;&nbsp;Set Your Password", "#16a34a")}
+
+    <p style="margin: 16px 0 0; font-size: 14px; color: #a3a3a3; line-height: 1.7; text-align: center;">
+      &#x1F4CB; Once you set your password, you can log in to view help requests, check in teams, and manage food distribution.
+    </p>
+
+    ${fallbackLink(setupUrl)}
+  `);
+}

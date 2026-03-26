@@ -90,6 +90,15 @@ async function main() {
   });
   console.log("Created judge user:", judge.email);
 
+  // Create test volunteer account
+  const volunteer = await createUserWithAccount(prisma, {
+    name: "Test Volunteer",
+    email: "volunteer@test.com",
+    password: "volunteer1234",
+    role: "VOLUNTEER",
+  });
+  console.log("Created volunteer user:", volunteer.email);
+
   console.log("Seeding complete!");
 }
 

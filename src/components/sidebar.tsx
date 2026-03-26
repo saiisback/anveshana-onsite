@@ -54,9 +54,8 @@ const navItems: Partial<Record<Role, NavItem[]>> = {
     { label: "Home", href: "/participant", icon: <LayoutDashboard className="size-5" /> },
     { label: "Schedule", href: "/participant/schedule", icon: <Calendar className="size-5" /> },
     { label: "Instructions", href: "/participant/instructions", icon: <BookOpen className="size-5" /> },
-    { label: "Help", href: "/participant/help", icon: <HelpCircle className="size-5" />, locked: true },
-    { label: "Map", href: "/participant/map", icon: <Map className="size-5" />, locked: true },
-    { label: "Alerts", href: "/participant/notifications", icon: <Bell className="size-5" />, locked: true },
+    { label: "Help", href: "/participant/help", icon: <HelpCircle className="size-5" /> },
+    { label: "Alerts", href: "/participant/notifications", icon: <Bell className="size-5" /> },
   ],
   VOLUNTEER: [
     { label: "Home", href: "/volunteer", icon: <LayoutDashboard className="size-5" /> },
