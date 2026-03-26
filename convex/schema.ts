@@ -54,6 +54,27 @@ export default defineSchema({
     checkedInByName: v.string(),
   }).index("by_team", ["teamId"]),
 
+  judgingAssignments: defineTable({
+    assignmentId: v.string(),
+    judgeId: v.string(),
+    judgeName: v.string(),
+    teamId: v.string(),
+    teamName: v.string(),
+    status: v.union(
+      v.literal("SCHEDULED"),
+      v.literal("IN_PROGRESS"),
+      v.literal("COMPLETED")
+    ),
+    score: v.optional(v.number()),
+    notes: v.optional(v.string()),
+    timeSlotStart: v.string(),
+    timeSlotEnd: v.string(),
+  })
+    .index("by_judge", ["judgeId"])
+    .index("by_team", ["teamId"])
+    .index("by_status", ["status"])
+    .index("by_assignment", ["assignmentId"]),
+
   announcements: defineTable({
     title: v.string(),
     message: v.string(),

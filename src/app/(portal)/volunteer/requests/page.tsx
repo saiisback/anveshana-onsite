@@ -4,10 +4,12 @@ import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
+import { useSession } from "@/lib/auth-client";
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Loader2 } from "lucide-react";
 
 const STATUS_COLORS: Record<string, string> = {
   OPEN: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
@@ -23,12 +25,12 @@ const URGENCY_COLORS: Record<string, string> = {
 };
 
 export default function VolunteerRequestsPage() {
-  // TODO: Replace with actual session data
-  const volunteerId = "placeholder-volunteer-id";
-  const volunteerName = "Placeholder Volunteer";
+  const { data: session, isPending: sessionLoading } = useSession();
+  const volunteerId = session?.user?.id ?? "";
+  const volunteerName = session?.user?.name ?? "";
 
   const allRequests = useQuery(api.helpRequests.list, {});
-  const myRequests = useQuery(api.helpRequests.listByVolunteer, { volunteerId });
+  const myRequests = useQuery(api.helpRequests.listByVolunteer, { volunteerId: volunteerId || "none" });
   const claimRequest = useMutation(api.helpRequests.claim);
   const updateStatus = useMutation(api.helpRequests.updateStatus);
 
@@ -67,6 +69,24 @@ export default function VolunteerRequestsPage() {
       setLoadingId(null);
     }
   };
+
+  if (sessionLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (!session?.user) {
+    return (
+      <div className="mx-auto max-w-4xl p-4 md:p-6">
+        <p className="text-center text-sm text-muted-foreground">
+          Unable to load session. Please log in again.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl space-y-6 p-4 md:p-6">

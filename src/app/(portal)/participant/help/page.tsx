@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@convex/_generated/api";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -32,12 +32,38 @@ const URGENCY_COLORS: Record<string, string> = {
 type Category = "Technical" | "Logistics" | "Judge" | "Other";
 type Urgency = "Low" | "Medium" | "High";
 
-export default function ParticipantHelpPage() {
-  // TODO: Replace with actual session data
-  const teamId = "placeholder-team-id";
-  const teamName = "Placeholder Team";
+interface TeamData {
+  id: string;
+  name: string;
+  stallNumber: string | null;
+  status: string;
+}
 
-  const requests = useQuery(api.helpRequests.listByTeam, { teamId });
+export default function ParticipantHelpPage() {
+  const [team, setTeam] = useState<TeamData | null>(null);
+  const [teamLoading, setTeamLoading] = useState(true);
+  const [teamError, setTeamError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/participant/team")
+      .then((res) => {
+        if (res.status === 401) throw new Error("Not authenticated");
+        if (res.status === 404) throw new Error("You are not a member of any team");
+        if (!res.ok) throw new Error("Failed to load team data");
+        return res.json();
+      })
+      .then((data: TeamData) => setTeam(data))
+      .catch((err: Error) => setTeamError(err.message))
+      .finally(() => setTeamLoading(false));
+  }, []);
+
+  const teamId = team?.id ?? "";
+  const teamName = team?.name ?? "";
+
+  const requests = useQuery(
+    api.helpRequests.listByTeam,
+    team ? { teamId: team.id } : "skip"
+  );
   const createRequest = useMutation(api.helpRequests.create);
 
   const [category, setCategory] = useState<Category | "">("");
@@ -65,6 +91,31 @@ export default function ParticipantHelpPage() {
       setIsSubmitting(false);
     }
   };
+
+  if (teamLoading) {
+    return (
+      <div className="mx-auto max-w-3xl p-4 md:p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 w-48 rounded bg-muted" />
+          <div className="h-4 w-72 rounded bg-muted" />
+          <div className="h-64 rounded-lg bg-muted" />
+        </div>
+      </div>
+    );
+  }
+
+  if (teamError) {
+    return (
+      <div className="mx-auto max-w-3xl p-4 md:p-6">
+        <h1 className="font-mono text-xl font-bold tracking-tight text-foreground sm:text-2xl">Request Help</h1>
+        <Card className="mt-6">
+          <CardContent className="py-8 text-center text-muted-foreground">
+            {teamError}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-8 p-4 md:p-6">

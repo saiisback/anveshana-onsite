@@ -64,8 +64,7 @@ export default function AdminNotificationsPage() {
           targetRole,
         }),
       }).catch(() => {
-        // Email failure shouldn't affect the announcement
-        console.error("Failed to send announcement emails");
+        toast.warning("Announcement saved but email delivery failed");
       });
 
       setTitle("");

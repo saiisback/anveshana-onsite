@@ -72,7 +72,11 @@ export default async function ParticipantDashboard() {
             <CardDescription>Stall Number</CardDescription>
             <CardTitle className="flex items-center gap-2 text-sm lg:text-base">
               <MapPin className="size-4 text-primary" />
-              TBD
+              {!team
+                ? "No team"
+                : team.status === "PENDING"
+                  ? "Pending approval"
+                  : team.stallNumber ?? "Not assigned yet"}
             </CardTitle>
           </CardHeader>
         </Card>
