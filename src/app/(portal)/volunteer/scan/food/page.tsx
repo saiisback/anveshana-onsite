@@ -22,7 +22,7 @@ import {
 const QR_PREFIX_USER = "anveshana-user-";
 const QR_PREFIX_TEAM = "anveshana-team-";
 
-type MealType = "Breakfast" | "Lunch" | "Dinner" | "Snack";
+type MealType = "Lunch" | "Snack";
 
 type ScanState =
   | { step: "scanning" }
@@ -38,7 +38,7 @@ type ScanState =
   | { step: "success"; visitorName: string }
   | { step: "error"; message: string };
 
-const MEAL_OPTIONS: MealType[] = ["Breakfast", "Lunch", "Dinner", "Snack"];
+const MEAL_OPTIONS: MealType[] = ["Lunch", "Snack"];
 
 export default function FoodScannerPage() {
   const { data: session, isPending: sessionLoading } = useSession();
@@ -244,7 +244,7 @@ export default function FoodScannerPage() {
 
   if (!session?.user) {
     return (
-      <div className="mx-auto max-w-2xl p-4 md:p-6">
+      <div className="mx-auto max-w-2xl">
         <p className="text-center text-sm text-muted-foreground">
           Unable to load session. Please log in again.
         </p>
@@ -253,7 +253,7 @@ export default function FoodScannerPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="font-mono text-xl font-bold tracking-tight text-foreground sm:text-2xl">
           Food Distribution

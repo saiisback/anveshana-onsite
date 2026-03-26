@@ -9,16 +9,16 @@ import { toast } from "sonner";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, CheckCircle2, XCircle, Camera, RotateCcw } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, Camera, RotateCcw, AlertTriangle } from "lucide-react";
 
-const QR_PREFIX = "anveshana-team-";
+const USER_QR_PREFIX = "anveshana-user-";
 
 type ScanState =
   | { step: "scanning" }
-  | { step: "validating"; teamId: string }
-  | { step: "confirming"; teamId: string; teamName: string; stallNumber: number | null }
-  | { step: "checking-in"; teamId: string; teamName: string }
-  | { step: "success"; teamName: string }
+  | { step: "validating"; visitorId: string }
+  | { step: "confirming"; visitorId: string; visitorName: string; teamName: string | null; alreadyCheckedIn: boolean }
+  | { step: "checking-in"; visitorId: string; visitorName: string }
+  | { step: "success"; visitorName: string }
   | { step: "error"; message: string };
 
 export default function VolunteerScanPage() {
@@ -33,6 +33,12 @@ export default function VolunteerScanPage() {
 
   const createCheckIn = useMutation(api.checkIns.create);
   const recentCheckIns = useQuery(api.checkIns.list, {});
+  const existingCheckIn = useQuery(
+    api.checkIns.getByVisitor,
+    scanState.step === "validating" || scanState.step === "confirming"
+      ? { visitorId: scanState.visitorId }
+      : "skip"
+  );
 
   const resetScanner = useCallback(() => {
     setScanState({ step: "scanning" });
@@ -47,14 +53,14 @@ export default function VolunteerScanPage() {
   }, []);
 
   const handleScanSuccess = useCallback(async (decodedText: string) => {
-    if (!decodedText.startsWith(QR_PREFIX)) {
-      setScanState({ step: "error", message: "Not a valid Anveshana QR code" });
+    if (!decodedText.startsWith(USER_QR_PREFIX)) {
+      setScanState({ step: "error", message: "Not a valid participant QR code" });
       return;
     }
 
-    const teamId = decodedText.slice(QR_PREFIX.length);
-    if (!teamId) {
-      setScanState({ step: "error", message: "Invalid QR code: no team ID found" });
+    const visitorId = decodedText.slice(USER_QR_PREFIX.length);
+    if (!visitorId) {
+      setScanState({ step: "error", message: "Invalid QR code: no user ID found" });
       return;
     }
 
@@ -67,25 +73,31 @@ export default function VolunteerScanPage() {
       }
     }
 
-    setScanState({ step: "validating", teamId });
+    setScanState({ step: "validating", visitorId });
 
     try {
-      const res = await fetch(`/api/admin/teams/validate?teamId=${encodeURIComponent(teamId)}`);
+      const res = await fetch(`/api/admin/users/validate?userId=${encodeURIComponent(visitorId)}`);
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         setScanState({
           step: "error",
-          message: res.status === 404 ? "Team not found" : (data.error ?? "Failed to validate team"),
+          message: res.status === 404 ? "User not found" : (data.error ?? "Failed to validate user"),
         });
         return;
       }
 
-      const team = await res.json();
+      const user = await res.json();
+      
+      // Check if already checked in (via API or convex)
+      const checkRes = await fetch(`/api/admin/users/check-in-status?userId=${encodeURIComponent(visitorId)}`);
+      const alreadyCheckedIn = checkRes.ok ? (await checkRes.json()).checkedIn : false;
+
       setScanState({
         step: "confirming",
-        teamId: team.id,
-        teamName: team.name,
-        stallNumber: team.stallNumber,
+        visitorId: user.id,
+        visitorName: user.name,
+        teamName: user.team?.name ?? null,
+        alreadyCheckedIn,
       });
     } catch {
       setScanState({ step: "error", message: "Network error. Please try again." });
@@ -131,25 +143,26 @@ export default function VolunteerScanPage() {
   const handleConfirmCheckIn = async () => {
     if (scanState.step !== "confirming") return;
 
-    const { teamId, teamName } = scanState;
-    setScanState({ step: "checking-in", teamId, teamName });
+    const { visitorId, visitorName, teamName } = scanState;
+    setScanState({ step: "checking-in", visitorId, visitorName });
 
     try {
       await createCheckIn({
-        teamId,
-        teamName,
+        visitorId,
+        visitorName,
+        teamName: teamName ?? undefined,
         checkedInBy: volunteerId,
         checkedInByName: volunteerName,
       });
-      setScanState({ step: "success", teamName });
-      toast.success(`Team "${teamName}" checked in successfully!`);
+      setScanState({ step: "success", visitorName });
+      toast.success(`${visitorName} checked in successfully!`);
 
       // Auto-reset after 2 seconds
       setTimeout(() => {
         resetScanner();
       }, 2000);
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Failed to check in team";
+      const message = err instanceof Error ? err.message : "Failed to check in";
       setScanState({ step: "error", message });
       toast.error(message);
     }
@@ -169,7 +182,7 @@ export default function VolunteerScanPage() {
 
   if (!session?.user) {
     return (
-      <div className="mx-auto max-w-2xl p-4 md:p-6">
+      <div className="mx-auto max-w-2xl">
         <p className="text-center text-sm text-muted-foreground">
           Unable to load session. Please log in again.
         </p>
@@ -178,13 +191,13 @@ export default function VolunteerScanPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-6">
+    <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="font-mono text-xl font-bold tracking-tight text-foreground sm:text-2xl">
-          QR Scanner
+          Check-in Scanner
         </h1>
         <p className="text-sm text-muted-foreground">
-          Scan a team&apos;s QR code to check them in.
+          Scan a participant&apos;s QR code to check them in.
         </p>
       </div>
 
@@ -221,7 +234,7 @@ export default function VolunteerScanPage() {
           {scanState.step === "validating" && (
             <div className="flex items-center justify-center gap-2 py-8">
               <Loader2 className="size-5 animate-spin" />
-              <span className="text-sm text-muted-foreground">Validating team...</span>
+              <span className="text-sm text-muted-foreground">Validating participant...</span>
             </div>
           )}
 
@@ -229,19 +242,27 @@ export default function VolunteerScanPage() {
           {scanState.step === "confirming" && (
             <div className="space-y-4 py-4">
               <div className="text-center">
-                <p className="text-sm text-muted-foreground">Check in team:</p>
-                <p className="text-lg font-semibold">{scanState.teamName}</p>
-                {scanState.stallNumber !== null && (
+                <p className="text-sm text-muted-foreground">Check in participant:</p>
+                <p className="text-lg font-semibold">{scanState.visitorName}</p>
+                {scanState.teamName && (
                   <Badge variant="outline" className="mt-1">
-                    Stall #{scanState.stallNumber}
+                    {scanState.teamName}
                   </Badge>
                 )}
               </div>
+              
+              {scanState.alreadyCheckedIn && (
+                <div className="flex items-center justify-center gap-2 rounded-md bg-yellow-500/10 px-3 py-2 text-yellow-600">
+                  <AlertTriangle className="size-4" />
+                  <span className="text-sm font-medium">Already checked in</span>
+                </div>
+              )}
+
               <div className="flex justify-center gap-3">
                 <Button variant="outline" onClick={handleCancel}>
                   Cancel
                 </Button>
-                <Button onClick={handleConfirmCheckIn}>
+                <Button onClick={handleConfirmCheckIn} disabled={scanState.alreadyCheckedIn}>
                   <CheckCircle2 className="mr-1.5 size-4" />
                   Confirm Check-in
                 </Button>
@@ -254,7 +275,7 @@ export default function VolunteerScanPage() {
             <div className="flex items-center justify-center gap-2 py-8">
               <Loader2 className="size-5 animate-spin" />
               <span className="text-sm text-muted-foreground">
-                Checking in {scanState.teamName}...
+                Checking in {scanState.visitorName}...
               </span>
             </div>
           )}
@@ -264,7 +285,7 @@ export default function VolunteerScanPage() {
             <div className="flex flex-col items-center gap-2 py-8">
               <CheckCircle2 className="size-8 text-green-500" />
               <p className="text-sm font-medium">
-                {scanState.teamName} checked in!
+                {scanState.visitorName} checked in!
               </p>
               <p className="text-xs text-muted-foreground">
                 Resetting scanner...
@@ -310,7 +331,12 @@ export default function VolunteerScanPage() {
                   className="flex items-center justify-between rounded-md border px-3 py-2 text-sm"
                 >
                   <div>
-                    <span className="font-medium">{checkIn.teamName}</span>
+                    <span className="font-medium">{checkIn.visitorName}</span>
+                    {checkIn.teamName && (
+                      <span className="ml-2 text-xs text-muted-foreground">
+                        ({checkIn.teamName})
+                      </span>
+                    )}
                     <span className="ml-2 text-xs text-muted-foreground">
                       by {checkIn.checkedInByName}
                     </span>

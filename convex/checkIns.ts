@@ -3,8 +3,9 @@ import { v } from "convex/values";
 
 export const create = mutation({
   args: {
-    teamId: v.string(),
-    teamName: v.string(),
+    visitorId: v.string(),
+    visitorName: v.string(),
+    teamName: v.optional(v.string()),
     checkedInBy: v.string(),
     checkedInByName: v.string(),
   },
@@ -13,14 +14,14 @@ export const create = mutation({
   },
 });
 
-export const getByTeam = query({
+export const getByVisitor = query({
   args: {
-    teamId: v.string(),
+    visitorId: v.string(),
   },
   handler: async (ctx, args) => {
     return await ctx.db
       .query("checkIns")
-      .withIndex("by_team", (q) => q.eq("teamId", args.teamId))
+      .withIndex("by_visitor", (q) => q.eq("visitorId", args.visitorId))
       .first();
   },
 });
@@ -28,6 +29,6 @@ export const getByTeam = query({
 export const list = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("checkIns").collect();
+    return await ctx.db.query("checkIns").order("desc").collect();
   },
 });

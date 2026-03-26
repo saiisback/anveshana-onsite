@@ -8,12 +8,7 @@ export const create = mutation({
     teamName: v.optional(v.string()),
     distributedBy: v.string(),
     distributedByName: v.string(),
-    mealType: v.union(
-      v.literal("Breakfast"),
-      v.literal("Lunch"),
-      v.literal("Dinner"),
-      v.literal("Snack")
-    ),
+    mealType: v.union(v.literal("Lunch"), v.literal("Snack")),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("foodDistributions", args);
@@ -23,12 +18,7 @@ export const create = mutation({
 export const getByVisitorAndMeal = query({
   args: {
     visitorId: v.string(),
-    mealType: v.union(
-      v.literal("Breakfast"),
-      v.literal("Lunch"),
-      v.literal("Dinner"),
-      v.literal("Snack")
-    ),
+    mealType: v.union(v.literal("Lunch"), v.literal("Snack")),
   },
   handler: async (ctx, args) => {
     return await ctx.db
@@ -54,12 +44,7 @@ export const getByVisitor = query({
 
 export const listByMeal = query({
   args: {
-    mealType: v.union(
-      v.literal("Breakfast"),
-      v.literal("Lunch"),
-      v.literal("Dinner"),
-      v.literal("Snack")
-    ),
+    mealType: v.union(v.literal("Lunch"), v.literal("Snack")),
   },
   handler: async (ctx, args) => {
     return await ctx.db
@@ -85,15 +70,15 @@ export const getStats = query({
     const all = await ctx.db.query("foodDistributions").collect();
     
     const stats = {
-      Breakfast: 0,
       Lunch: 0,
-      Dinner: 0,
       Snack: 0,
       total: all.length,
     };
 
     for (const item of all) {
-      stats[item.mealType]++;
+      if (item.mealType === "Lunch" || item.mealType === "Snack") {
+        stats[item.mealType]++;
+      }
     }
 
     return stats;

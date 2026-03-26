@@ -52,5 +52,11 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/participant/:path*", "/volunteer/:path*", "/admin/:path*", "/judge/:path*"],
+  matcher: [
+    "/participant/:path*",
+    // Exclude /volunteer/register from auth - it's public
+    "/volunteer/((?!register).*)",
+    "/admin/:path*",
+    "/judge/:path*",
+  ],
 };

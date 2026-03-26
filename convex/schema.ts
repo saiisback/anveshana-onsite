@@ -48,11 +48,12 @@ export default defineSchema({
     .index("by_user_unread", ["userId", "read"]),
 
   checkIns: defineTable({
-    teamId: v.string(),
-    teamName: v.string(),
+    visitorId: v.string(),
+    visitorName: v.string(),
+    teamName: v.optional(v.string()),
     checkedInBy: v.string(),
     checkedInByName: v.string(),
-  }).index("by_team", ["teamId"]),
+  }).index("by_visitor", ["visitorId"]),
 
   judgingAssignments: defineTable({
     assignmentId: v.string(),
@@ -94,12 +95,7 @@ export default defineSchema({
     teamName: v.optional(v.string()),
     distributedBy: v.string(),
     distributedByName: v.string(),
-    mealType: v.union(
-      v.literal("Breakfast"),
-      v.literal("Lunch"),
-      v.literal("Dinner"),
-      v.literal("Snack")
-    ),
+    mealType: v.union(v.literal("Lunch"), v.literal("Snack")),
   })
     .index("by_visitor", ["visitorId"])
     .index("by_visitor_meal", ["visitorId", "mealType"])
