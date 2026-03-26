@@ -1,12 +1,27 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { sendEmailsInBatches } from "@/lib/resend";
 import { checkInReminderEmail } from "@/lib/email-templates";
 import { withAdmin } from "@/lib/admin-handler";
 import { EVENT_NAME, TEAM_ROLE_LEAD } from "@/lib/constants";
 
+const checkInReminderSchema = z.object({
+  teamIds: z.array(z.string().min(1)).optional(),
+});
+
 export const POST = withAdmin(async (request: Request) => {
-  const { teamIds } = (await request.json()) as { teamIds?: string[] };
+  const body = await request.json();
+  const parsed = checkInReminderSchema.safeParse(body);
+
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
+  }
+
+  const { teamIds } = parsed.data;
 
   // Get approved teams that haven't checked in
   const where: Record<string, unknown> = { status: "APPROVED" };

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { AUTH_COOKIES, ROLE_DASHBOARDS } from "@/lib/constants";
 
 export async function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   // Read the session token cookie directly
   const sessionCookie =
-    req.cookies.get("better-auth.session_token")?.value ??
-    req.cookies.get("__Secure-better-auth.session_token")?.value;
+    req.cookies.get(AUTH_COOKIES.SESSION)?.value ??
+    req.cookies.get(AUTH_COOKIES.SESSION_SECURE)?.value;
 
   // If no session cookie and trying to access protected routes, redirect to login
   if (!sessionCookie) {
@@ -25,8 +26,8 @@ export async function middleware(req: NextRequest) {
   if (!session) {
     // Clear stale cookies and redirect
     const response = NextResponse.redirect(new URL("/login", req.url));
-    response.cookies.delete("better-auth.session_token");
-    response.cookies.delete("__Secure-better-auth.session_token");
+    response.cookies.delete(AUTH_COOKIES.SESSION);
+    response.cookies.delete(AUTH_COOKIES.SESSION_SECURE);
     return response;
   }
 
@@ -41,14 +42,9 @@ export async function middleware(req: NextRequest) {
 
   for (const [prefix, requiredRole] of Object.entries(roleRouteMap)) {
     if (pathname.startsWith(prefix) && role !== requiredRole) {
-      // Redirect to the correct dashboard for their role instead of login
-      const roleDashboard: Record<string, string> = {
-        ADMIN: "/admin",
-        VOLUNTEER: "/volunteer",
-        PARTICIPANT: "/participant",
-        JUDGE: "/judge",
-      };
-      return NextResponse.redirect(new URL(roleDashboard[role] || "/login", req.url));
+      return NextResponse.redirect(
+        new URL(ROLE_DASHBOARDS[role] || "/login", req.url)
+      );
     }
   }
 

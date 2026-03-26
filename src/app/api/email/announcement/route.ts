@@ -1,28 +1,31 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { sendEmailsInBatches } from "@/lib/resend";
 import { announcementEmail } from "@/lib/email-templates";
 import { withAdmin } from "@/lib/admin-handler";
-import { EVENT_NAME, VALID_TARGET_ROLES } from "@/lib/constants";
+import { EVENT_NAME } from "@/lib/constants";
 import { getTeamLeadEmails } from "@/lib/queries";
 import type { Role } from "@/generated/prisma/enums";
 
+const announcementSchema = z.object({
+  title: z.string().min(1).max(200),
+  message: z.string().min(1).max(5000),
+  targetRole: z.enum(["ALL", "PARTICIPANT", "VOLUNTEER", "JUDGE", "ADMIN"]),
+});
+
 export const POST = withAdmin(async (request: Request) => {
-  const { title, message, targetRole } = await request.json();
+  const body = await request.json();
+  const parsed = announcementSchema.safeParse(body);
 
-  if (!title || !message) {
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: "Title and message are required" },
+      { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
       { status: 400 }
     );
   }
 
-  if (!VALID_TARGET_ROLES.includes(targetRole)) {
-    return NextResponse.json(
-      { error: `Invalid targetRole. Must be one of: ${VALID_TARGET_ROLES.join(", ")}` },
-      { status: 400 }
-    );
-  }
+  const { title, message, targetRole } = parsed.data;
 
   // For PARTICIPANT role, only email team leads to save quota
   // For other roles, email each user directly

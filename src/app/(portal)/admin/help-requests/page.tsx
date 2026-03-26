@@ -20,19 +20,7 @@ import {
   TableRow,
   TableCell,
 } from "@/components/ui/table";
-
-const STATUS_COLORS: Record<string, string> = {
-  OPEN: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
-  CLAIMED: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
-  IN_PROGRESS: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
-  RESOLVED: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
-};
-
-const URGENCY_COLORS: Record<string, string> = {
-  Low: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
-  Medium: "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400",
-  High: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400",
-};
+import { STATUS_COLORS, URGENCY_COLORS } from "@/lib/constants";
 
 type Status = "OPEN" | "CLAIMED" | "IN_PROGRESS" | "RESOLVED";
 type Category = "Technical" | "Logistics" | "Judge" | "Other";
