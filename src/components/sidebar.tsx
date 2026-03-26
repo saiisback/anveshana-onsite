@@ -30,6 +30,7 @@ import {
   Mail,
   Lock,
   BookOpen,
+  UserPlus,
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -78,6 +79,7 @@ const navItems: Partial<Record<Role, NavItem[]>> = {
     { label: "Volunteers", href: "/admin/volunteers", icon: <UserCheck className="size-5" /> },
     { label: "Notifications", href: "/admin/notifications", icon: <Bell className="size-5" /> },
     { label: "Help Requests", href: "/admin/help-requests", icon: <HelpCircle className="size-5" /> },
+    { label: "Register", href: "/admin/register", icon: <UserPlus className="size-5" /> },
     { label: "Analysis", href: "/admin/analysis", icon: <BarChart3 className="size-5" /> },
     { label: "Settings", href: "/admin/settings", icon: <Settings className="size-5" /> },
   ],

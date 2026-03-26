@@ -81,6 +81,15 @@ async function main() {
   });
   console.log("Created admin user:", admin.email);
 
+  // Create test judge account
+  const judge = await createUserWithAccount(prisma, {
+    name: "Test Judge",
+    email: "judge@test.com",
+    password: "judge1234",
+    role: "JUDGE",
+  });
+  console.log("Created judge user:", judge.email);
+
   console.log("Seeding complete!");
 }
 

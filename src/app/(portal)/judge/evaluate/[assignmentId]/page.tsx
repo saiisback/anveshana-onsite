@@ -48,11 +48,21 @@ export default async function EvaluatePage({ params }: Props) {
     members: assignment.team.members.map((m) => m.user.name),
   };
 
+  const breakdown = assignment.scoreBreakdown as {
+    innovation: number;
+    execution: number;
+    marketFit: number;
+    scalability: number;
+    uniqueness: number;
+    presentation: number;
+  } | null;
+
   return (
     <EvaluateClient
       assignmentId={assignment.id}
       status={assignment.status}
       existingScore={assignment.score}
+      existingBreakdown={breakdown}
       timeSlotStart={assignment.timeSlotStart.toISOString()}
       timeSlotEnd={assignment.timeSlotEnd.toISOString()}
       team={teamData}

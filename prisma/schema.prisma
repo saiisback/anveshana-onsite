@@ -171,6 +171,7 @@ model JudgeAssignment {
   timeSlotEnd   DateTime
   status        JudgeAssignmentStatus  @default(SCHEDULED)
   score         Float?
+  scoreBreakdown Json?
   judge         User                   @relation(fields: [judgeId], references: [id], onDelete: Cascade)
   team          Team                   @relation(fields: [teamId], references: [id], onDelete: Cascade)
   createdAt     DateTime               @default(now())

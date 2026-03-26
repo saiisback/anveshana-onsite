@@ -3,9 +3,18 @@ import { z } from "zod";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/auth-server";
 
+const scoreParam = z.number().min(0).max(10);
+
 const evaluateSchema = z.object({
   assignmentId: z.string().min(1),
-  score: z.number().min(0).max(100),
+  scores: z.object({
+    innovation: scoreParam,
+    execution: scoreParam,
+    marketFit: scoreParam,
+    scalability: scoreParam,
+    uniqueness: scoreParam,
+    presentation: scoreParam,
+  }),
 });
 
 const COMPLETED_STATUS = "COMPLETED" as const;
@@ -31,7 +40,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { assignmentId, score } = parsed.data;
+  const { assignmentId, scores } = parsed.data;
 
   const assignment = await prisma.judgeAssignment.findUnique({
     where: { id: assignmentId },
@@ -52,13 +61,29 @@ export async function POST(request: Request) {
     );
   }
 
+  // Total score: sum of 6 params (max 60), scaled to 100
+  const rawTotal =
+    scores.innovation +
+    scores.execution +
+    scores.marketFit +
+    scores.scalability +
+    scores.uniqueness +
+    scores.presentation;
+  const scaledScore = Math.round((rawTotal / 60) * 100 * 100) / 100;
+
   const updated = await prisma.judgeAssignment.update({
     where: { id: assignmentId },
     data: {
-      score,
+      score: scaledScore,
+      scoreBreakdown: scores,
       status: COMPLETED_STATUS,
     },
   });
 
-  return NextResponse.json({ message: "Evaluation submitted", assignment: updated });
+  return NextResponse.json({
+    message: "Evaluation submitted",
+    assignment: updated,
+    breakdown: scores,
+    totalScore: scaledScore,
+  });
 }

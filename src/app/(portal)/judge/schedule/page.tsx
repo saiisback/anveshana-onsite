@@ -100,14 +100,11 @@ export default async function JudgeSchedulePage() {
                             <CardTitle className="text-sm">
                               {assignment.team.name}
                             </CardTitle>
-                            <CardDescription className="mt-0.5">
-                              {assignment.team.prototypeTitle ?? "No prototype title"}
-                              {assignment.team.stallNumber != null && (
-                                <span className="ml-2">
-                                  &middot; Stall #{assignment.team.stallNumber}
-                                </span>
-                              )}
-                            </CardDescription>
+                            {assignment.team.stallNumber != null && (
+                              <CardDescription className="mt-0.5">
+                                Stall #{assignment.team.stallNumber}
+                              </CardDescription>
+                            )}
                           </div>
                           <div className="flex shrink-0 items-center gap-2">
                             <span className="text-xs text-muted-foreground">

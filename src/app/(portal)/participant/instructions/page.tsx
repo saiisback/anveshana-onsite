@@ -1,18 +1,11 @@
-"use client";
-
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
-  Clock,
   Gift,
-  MapPin,
-  Mic,
-  UtensilsCrossed,
   Users,
   HandHelping,
   Gavel,
@@ -23,49 +16,6 @@ import {
   Stamp,
   Phone,
 } from "lucide-react";
-
-const TIMELINE = [
-  {
-    time: "8:30 AM",
-    title: "Registration Opens",
-    description:
-      "Arrive at the venue and head to the registration desk. Collect your Welcome Kit.",
-    icon: Clock,
-    color: "text-blue-500",
-  },
-  {
-    time: "After Registration",
-    title: "Guided Navigation",
-    description:
-      "Based on your arrival time, you will be guided to the Inaugural Ceremony or directly to the Prototype Zones.",
-    icon: MapPin,
-    color: "text-teal-500",
-  },
-  {
-    time: "Morning",
-    title: "Inaugural Ceremony",
-    description:
-      "A formal function covering the event flow, judging evaluation metrics, and all important guidelines for the day.",
-    icon: Mic,
-    color: "text-purple-500",
-  },
-  {
-    time: "Throughout the Day",
-    title: "Prototype Exhibition & Judging",
-    description:
-      "Present your prototype at your assigned stall. Track judge proximity via the app.",
-    icon: Gavel,
-    color: "text-orange-500",
-  },
-  {
-    time: "Meal Times",
-    title: "Food & Refreshments",
-    description:
-      "You will be notified through the app when food is ready. A volunteer will guide you to the food area.",
-    icon: UtensilsCrossed,
-    color: "text-green-500",
-  },
-];
 
 export default function InstructionsPage() {
   return (
@@ -238,7 +188,7 @@ export default function InstructionsPage() {
                   Contact Shivanth
                 </p>
                 <a
-                  href="tel:808855825"
+                  href="tel:8088558825"
                   className="font-mono text-lg font-bold text-primary hover:underline"
                 >
                   8088558825

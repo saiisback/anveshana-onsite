@@ -28,14 +28,9 @@ export default async function JudgeDashboard() {
   const session = await getSession();
   if (!session?.user) redirect("/login");
 
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
-
   const assignments = await prisma.judgeAssignment.findMany({
     where: {
       judgeId: session.user.id,
-      timeSlotStart: { gte: todayStart, lt: todayEnd },
     },
     include: {
       team: {
@@ -132,14 +127,11 @@ export default async function JudgeDashboard() {
                         <CardTitle className="text-sm">
                           {assignment.team.name}
                         </CardTitle>
-                        <CardDescription className="mt-0.5">
-                          {assignment.team.prototypeTitle ?? "No prototype title"}
-                          {assignment.team.stallNumber != null && (
-                            <span className="ml-2">
-                              &middot; Stall #{assignment.team.stallNumber}
-                            </span>
-                          )}
-                        </CardDescription>
+                        {assignment.team.stallNumber != null && (
+                          <CardDescription className="mt-0.5">
+                            Stall #{assignment.team.stallNumber}
+                          </CardDescription>
+                        )}
                       </div>
                       <div className="flex shrink-0 items-center gap-2">
                         <span className="text-xs text-muted-foreground">
