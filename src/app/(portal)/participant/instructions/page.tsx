@@ -6,8 +6,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
+  Clock,
   Gift,
+  MapPin,
+  Mic,
+  UtensilsCrossed,
   Users,
   HandHelping,
   Gavel,
@@ -18,6 +23,49 @@ import {
   Stamp,
   Phone,
 } from "lucide-react";
+
+const TIMELINE = [
+  {
+    time: "8:30 AM",
+    title: "Registration Opens",
+    description:
+      "Arrive at the venue and head to the registration desk. Collect your Welcome Kit.",
+    icon: Clock,
+    color: "text-blue-500",
+  },
+  {
+    time: "After Registration",
+    title: "Guided Navigation",
+    description:
+      "Based on your arrival time, you will be guided to the Inaugural Ceremony or directly to the Prototype Zones.",
+    icon: MapPin,
+    color: "text-teal-500",
+  },
+  {
+    time: "Morning",
+    title: "Inaugural Ceremony",
+    description:
+      "A formal function covering the event flow, judging evaluation metrics, and all important guidelines for the day.",
+    icon: Mic,
+    color: "text-purple-500",
+  },
+  {
+    time: "Throughout the Day",
+    title: "Prototype Exhibition & Judging",
+    description:
+      "Present your prototype at your assigned stall. Track judge proximity via the app.",
+    icon: Gavel,
+    color: "text-orange-500",
+  },
+  {
+    time: "Meal Times",
+    title: "Food & Refreshments",
+    description:
+      "You will be notified through the app when food is ready. A volunteer will guide you to the food area.",
+    icon: UtensilsCrossed,
+    color: "text-green-500",
+  },
+];
 
 export default function InstructionsPage() {
   return (
@@ -62,6 +110,43 @@ export default function InstructionsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Event Timeline */}
+      <div className="space-y-3">
+        <h2 className="font-mono text-lg font-semibold text-foreground">
+          Event Timeline
+        </h2>
+        <div className="relative space-y-3">
+          {/* Vertical line */}
+          <div className="absolute left-[19px] top-2 bottom-2 w-px bg-border" />
+
+          {TIMELINE.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Card key={item.title} className="relative ml-10">
+                {/* Timeline dot */}
+                <div className="absolute -left-10 top-4 flex size-[38px] items-center justify-center rounded-full border border-border bg-background">
+                  <Icon className={`size-4 ${item.color}`} />
+                </div>
+                <CardContent className="py-4">
+                  <Badge
+                    variant="outline"
+                    className="mb-2 font-mono text-xs"
+                  >
+                    {item.time}
+                  </Badge>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {item.title}
+                  </h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {item.description}
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Judging Rules */}
       <Card className="border-orange-500/20">
@@ -192,7 +277,7 @@ export default function InstructionsPage() {
                   href="tel:808855825"
                   className="font-mono text-lg font-bold text-primary hover:underline"
                 >
-                  808855825
+                  8088558825
                 </a>
                 <p className="mt-1 text-muted-foreground">
                   Shivanth will coordinate your arrival and guide you to the venue.
