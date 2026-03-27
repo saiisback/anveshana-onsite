@@ -30,7 +30,7 @@ export default async function PortalLayout({
         className={cn(
           "min-h-screen lg:ml-64 lg:pt-0",
           hasBottomNav
-            ? "pb-20 pt-0"   /* bottom navbar: no top bar, add bottom padding */
+            ? "pb-20 pt-14"  /* bottom navbar + top bar */
             : "pt-16"        /* admin: top bar hamburger menu */
         )}
       >

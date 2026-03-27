@@ -211,6 +211,29 @@ function SidebarContent({
   );
 }
 
+function MobileTopBar() {
+  const router = useRouter();
+
+  return (
+    <div className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-border bg-sidebar px-4 lg:hidden">
+      <div className="flex items-center gap-2">
+        <Image src="/anveshana.png" alt="Anveshana" width={28} height={28} className="rounded" />
+        <span className="font-mono text-sm font-bold text-foreground">Anveshana</span>
+      </div>
+      <button
+        onClick={async () => {
+          await signOut();
+          router.push("/login");
+        }}
+        className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground"
+      >
+        <LogOut className="size-4" />
+        Logout
+      </button>
+    </div>
+  );
+}
+
 function BottomNavBar({ role, pathname }: { role: Role; pathname: string }) {
   const items = navItems[role] ?? [];
 
@@ -275,8 +298,11 @@ export function Sidebar({ role, userName }: SidebarProps) {
       </aside>
 
       {isBottomNav ? (
-        /* Mobile bottom navbar — participant & volunteer */
-        <BottomNavBar role={role} pathname={pathname} />
+        /* Mobile top bar + bottom navbar — participant, volunteer & judge */
+        <>
+          <MobileTopBar />
+          <BottomNavBar role={role} pathname={pathname} />
+        </>
       ) : (
         /* Mobile top bar + drawer — admin */
         <div className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center border-b border-border bg-sidebar px-4 lg:hidden">
