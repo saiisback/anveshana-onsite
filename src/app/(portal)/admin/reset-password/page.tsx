@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,12 +18,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2, CheckCircle2, KeyRound, UserPlus } from "lucide-react";
+import { Loader2, CheckCircle2, KeyRound, UserPlus, Search, Send } from "lucide-react";
 
 interface Team {
   id: string;
   name: string;
   stallNumber: number | null;
+}
+
+interface UserItem {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  teamName: string | null;
 }
 
 function StatusMessage({ error, success }: { error: string; success: string }) {
@@ -40,12 +48,22 @@ function StatusMessage({ error, success }: { error: string; success: string }) {
   );
 }
 
+const roleBadgeColors: Record<string, string> = {
+  ADMIN: "bg-purple-900/50 text-purple-400 border-purple-800",
+  PARTICIPANT: "bg-blue-900/50 text-blue-400 border-blue-800",
+  VOLUNTEER: "bg-amber-900/50 text-amber-400 border-amber-800",
+  JUDGE: "bg-green-900/50 text-green-400 border-green-800",
+};
+
 export default function ResetPasswordPage() {
-  // Reset password state
-  const [resetEmail, setResetEmail] = useState("");
-  const [resetLoading, setResetLoading] = useState(false);
+  // Users state
+  const [users, setUsers] = useState<UserItem[]>([]);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [sendingFor, setSendingFor] = useState<string | null>(null);
   const [resetError, setResetError] = useState("");
   const [resetSuccess, setResetSuccess] = useState("");
+  const listRef = useRef<HTMLDivElement>(null);
 
   // Add member state
   const [teams, setTeams] = useState<Team[]>([]);
@@ -57,36 +75,49 @@ export default function ResetPasswordPage() {
   const [addSuccess, setAddSuccess] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin/teams/list")
-      .then((res) => res.json())
-      .then((data) => setTeams(data))
-      .catch(() => {});
+    Promise.all([
+      fetch("/api/admin/users/list").then((r) => r.json()),
+      fetch("/api/admin/teams/list").then((r) => r.json()),
+    ])
+      .then(([usersData, teamsData]) => {
+        setUsers(usersData);
+        setTeams(teamsData);
+      })
+      .catch(() => {})
+      .finally(() => setUsersLoading(false));
   }, []);
 
-  async function handleReset(e: React.FormEvent) {
-    e.preventDefault();
+  const filtered = useMemo(() => {
+    if (!search.trim()) return users;
+    const q = search.toLowerCase();
+    return users.filter(
+      (u) =>
+        u.name.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        (u.teamName && u.teamName.toLowerCase().includes(q))
+    );
+  }, [users, search]);
+
+  async function handleSendReset(user: UserItem) {
     setResetError("");
     setResetSuccess("");
-    setResetLoading(true);
+    setSendingFor(user.id);
 
     try {
       const res = await fetch("/api/admin/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: resetEmail }),
+        body: JSON.stringify({ email: user.email }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Failed to send reset link");
 
-      setResetSuccess(
-        `Password reset link sent to ${resetEmail}${data.userName ? ` (${data.userName})` : ""}`
-      );
-      setResetEmail("");
+      setResetSuccess(`Password reset link sent to ${user.name} (${user.email})`);
     } catch (err) {
       setResetError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
-      setResetLoading(false);
+      setSendingFor(null);
     }
   }
 
@@ -114,6 +145,12 @@ export default function ResetPasswordPage() {
       setMemberName("");
       setMemberEmail("");
       setSelectedTeamId("");
+
+      // Refresh users list
+      fetch("/api/admin/users/list")
+        .then((r) => r.json())
+        .then(setUsers)
+        .catch(() => {});
     } catch (err) {
       setAddError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -122,7 +159,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="mx-auto max-w-lg space-y-6 py-8 px-4">
+    <div className="mx-auto max-w-2xl space-y-6 py-8 px-4">
       {/* Reset Password */}
       <Card>
         <CardHeader>
@@ -133,39 +170,86 @@ export default function ResetPasswordPage() {
             <div>
               <CardTitle>Reset User Password</CardTitle>
               <CardDescription>
-                Send a password reset link to a user&apos;s email
+                Search for a user and send them a password reset link
               </CardDescription>
             </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleReset} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="reset-email">User Email</Label>
-              <Input
-                id="reset-email"
-                type="email"
-                placeholder="user@example.com"
-                value={resetEmail}
-                onChange={(e) => setResetEmail(e.target.value)}
-                required
-                autoComplete="off"
-              />
-            </div>
+        <CardContent className="space-y-4">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Search by name, email, or team..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
 
-            <StatusMessage error={resetError} success={resetSuccess} />
+          <StatusMessage error={resetError} success={resetSuccess} />
 
-            <Button type="submit" className="w-full" disabled={resetLoading}>
-              {resetLoading ? (
-                <>
-                  <Loader2 className="mr-2 size-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                "Send Reset Link"
-              )}
-            </Button>
-          </form>
+          {/* User list */}
+          <div
+            ref={listRef}
+            className="max-h-[400px] space-y-1 overflow-y-auto rounded-lg border border-border"
+          >
+            {usersLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="size-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="py-8 text-center text-sm text-muted-foreground">
+                {search ? "No users match your search" : "No users found"}
+              </div>
+            ) : (
+              filtered.map((user) => (
+                <div
+                  key={user.id}
+                  className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 last:border-b-0 hover:bg-muted/30"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="truncate text-sm font-medium">{user.name}</p>
+                      <span
+                        className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold ${roleBadgeColors[user.role] ?? ""}`}
+                      >
+                        {user.role}
+                      </span>
+                    </div>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {user.email}
+                      {user.teamName && (
+                        <span className="text-muted-foreground/60">
+                          {" "}
+                          &middot; {user.teamName}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={sendingFor !== null}
+                    onClick={() => handleSendReset(user)}
+                    className="shrink-0 gap-1.5"
+                  >
+                    {sendingFor === user.id ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : (
+                      <Send className="size-3.5" />
+                    )}
+                    Send
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
+
+          <p className="text-xs text-muted-foreground">
+            {filtered.length} user{filtered.length !== 1 ? "s" : ""}
+            {search && ` matching "${search}"`}
+          </p>
         </CardContent>
       </Card>
 
