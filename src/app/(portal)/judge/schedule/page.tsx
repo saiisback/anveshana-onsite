@@ -50,6 +50,7 @@ export default async function JudgeSchedulePage() {
       year: "numeric",
       month: "long",
       day: "numeric",
+      timeZone: "Asia/Kolkata",
     });
     const existing = grouped.get(dateKey) ?? [];
     existing.push(assignment);
@@ -111,11 +112,13 @@ export default async function JudgeSchedulePage() {
                               {new Date(assignment.timeSlotStart).toLocaleTimeString("en-IN", {
                                 hour: "2-digit",
                                 minute: "2-digit",
+                                timeZone: "Asia/Kolkata",
                               })}
                               {" – "}
                               {new Date(assignment.timeSlotEnd).toLocaleTimeString("en-IN", {
                                 hour: "2-digit",
                                 minute: "2-digit",
+                                timeZone: "Asia/Kolkata",
                               })}
                             </span>
                             <Badge

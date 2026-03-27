@@ -110,11 +110,12 @@ function formatTime(date: Date): string {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
+    timeZone: "Asia/Kolkata",
   });
 }
 
 function formatDate(date: Date): string {
-  return date.toLocaleString("en-IN", { dateStyle: "medium" });
+  return date.toLocaleString("en-IN", { dateStyle: "medium", timeZone: "Asia/Kolkata" });
 }
 
 export default async function ParticipantSchedulePage() {

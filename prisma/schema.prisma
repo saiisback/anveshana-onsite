@@ -108,7 +108,7 @@ model Team {
   description            String?
   category               String?
   requirements           String?
-  stallNumber            Int?          @unique
+  stallNumber            Int?
   status                 TeamStatus    @default(PENDING)
   qrCode                 String?
   paymentScreenshot      String?

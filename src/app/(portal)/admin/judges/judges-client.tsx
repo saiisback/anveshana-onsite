@@ -372,11 +372,13 @@ export function JudgesClient({ judges, teams, assignments: initialAssignments }:
                         {new Date(a.timeSlotStart).toLocaleString("en-IN", {
                           dateStyle: "short",
                           timeStyle: "short",
+                          timeZone: "Asia/Kolkata",
                         })}
                         {" – "}
                         {new Date(a.timeSlotEnd).toLocaleTimeString("en-IN", {
                           hour: "2-digit",
                           minute: "2-digit",
+                          timeZone: "Asia/Kolkata",
                         })}
                       </TableCell>
                       <TableCell>

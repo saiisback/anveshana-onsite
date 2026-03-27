@@ -138,11 +138,13 @@ export default async function JudgeDashboard() {
                           {new Date(assignment.timeSlotStart).toLocaleTimeString("en-IN", {
                             hour: "2-digit",
                             minute: "2-digit",
+                            timeZone: "Asia/Kolkata",
                           })}
                           {" – "}
                           {new Date(assignment.timeSlotEnd).toLocaleTimeString("en-IN", {
                             hour: "2-digit",
                             minute: "2-digit",
+                            timeZone: "Asia/Kolkata",
                           })}
                         </span>
                         <Badge
