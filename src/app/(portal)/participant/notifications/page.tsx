@@ -13,6 +13,7 @@ export default function ParticipantNotificationsPage() {
       subtitle="Stay updated on your event activity"
       emptyDescription="You'll see updates about your team and the event here."
       userId={userId}
+      userRole="PARTICIPANT"
     />
   );
 }

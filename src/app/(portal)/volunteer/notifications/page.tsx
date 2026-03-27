@@ -13,6 +13,7 @@ export default function VolunteerNotificationsPage() {
       subtitle="Stay updated on help requests and event activity"
       emptyDescription="You'll see updates about help requests and assignments here."
       userId={userId}
+      userRole="VOLUNTEER"
     />
   );
 }
