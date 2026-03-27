@@ -30,8 +30,9 @@ export const POST = withAdmin(async (
   }
 
   // Check if user already exists
+  const volunteerEmail = volunteerRequest.email.toLowerCase();
   const existingUser = await prisma.user.findUnique({
-    where: { email: volunteerRequest.email },
+    where: { email: volunteerEmail },
   });
 
   if (existingUser) {
@@ -52,7 +53,7 @@ export const POST = withAdmin(async (
     const user = await tx.user.create({
       data: {
         name: volunteerRequest.name,
-        email: volunteerRequest.email,
+        email: volunteerEmail,
         role: "VOLUNTEER",
       },
     });

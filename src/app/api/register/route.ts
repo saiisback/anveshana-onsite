@@ -41,12 +41,13 @@ export async function POST(request: Request) {
 
     const team = await prisma.$transaction(async (tx) => {
       // Create lead user (no password)
+      const leadEmail = invitation.email.toLowerCase();
       const leadUser = await tx.user.upsert({
-        where: { email: invitation.email },
+        where: { email: leadEmail },
         update: { name: parsed.leadName, phone: parsed.leadPhone },
         create: {
           name: parsed.leadName,
-          email: invitation.email,
+          email: leadEmail,
           emailVerified: true,
           phone: parsed.leadPhone,
           role: "PARTICIPANT",
@@ -56,12 +57,13 @@ export async function POST(request: Request) {
       // Create additional member users sequentially to avoid deadlocks
       const memberUsers = [];
       for (const member of parsed.members) {
+        const memberEmail = member.email.toLowerCase();
         const memberUser = await tx.user.upsert({
-          where: { email: member.email },
+          where: { email: memberEmail },
           update: { name: member.name, phone: member.phone },
           create: {
             name: member.name,
-            email: member.email,
+            email: memberEmail,
             emailVerified: true,
             phone: member.phone,
             role: "PARTICIPANT",

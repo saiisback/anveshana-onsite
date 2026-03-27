@@ -20,7 +20,6 @@ export const auth = betterAuth({
       verify: ({ hash, password }) => compare(password, hash),
     },
   },
-  emailNormalization: true,
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // refresh session every 24 hours

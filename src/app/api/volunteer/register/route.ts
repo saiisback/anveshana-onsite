@@ -19,7 +19,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email } = parsed.data;
+    const { name, email: rawEmail } = parsed.data;
+    const email = rawEmail.toLowerCase();
 
     // Check if email already exists in volunteer requests
     const existingRequest = await prisma.volunteerRequest.findUnique({
