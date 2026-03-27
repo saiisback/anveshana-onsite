@@ -115,9 +115,6 @@ export const submitScore = mutation({
     if (!existing) {
       throw new Error("Assignment not found");
     }
-    if (existing.status === "COMPLETED") {
-      throw new Error("Assignment already completed");
-    }
     await ctx.db.patch(existing._id, {
       status: "COMPLETED",
       score: args.score,

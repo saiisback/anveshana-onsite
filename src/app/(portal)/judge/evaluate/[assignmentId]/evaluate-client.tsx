@@ -15,6 +15,7 @@ import {
   ArrowLeft,
   CheckCircle,
   Loader2,
+  Pencil,
   Users,
   Tag,
   MapPin,
@@ -81,6 +82,7 @@ export function EvaluateClient({
   const [submitted, setSubmitted] = useState(status === COMPLETED_STATUS);
   const [finalScore, setFinalScore] = useState(existingScore);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const isEditing = status === COMPLETED_STATUS && !submitted;
 
   const [scores, setScores] = useState<Scores>(
     existingBreakdown ?? {
@@ -116,7 +118,7 @@ export function EvaluateClient({
 
       setSubmitted(true);
       setFinalScore(scaledScore);
-      toast.success("Evaluation submitted successfully");
+      toast.success(isEditing ? "Evaluation updated successfully" : "Evaluation submitted successfully");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to submit evaluation"
@@ -216,12 +218,22 @@ export function EvaluateClient({
                 ))}
               </div>
             )}
-            <Link
-              href="/judge/schedule"
-              className="mt-4 text-sm text-primary hover:underline"
-            >
-              Back to schedule
-            </Link>
+            <div className="mt-4 flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSubmitted(false)}
+              >
+                <Pencil className="mr-1.5 size-3.5" />
+                Edit Scores
+              </Button>
+              <Link
+                href="/judge/schedule"
+                className="text-sm text-primary hover:underline"
+              >
+                Back to schedule
+              </Link>
+            </div>
           </CardContent>
         </Card>
       ) : (
@@ -282,7 +294,7 @@ export function EvaluateClient({
               ) : (
                 <CheckCircle className="mr-1.5 size-4" />
               )}
-              Submit Evaluation
+              {isEditing ? "Update Evaluation" : "Submit Evaluation"}
             </Button>
           </CardContent>
         </Card>

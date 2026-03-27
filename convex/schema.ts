@@ -99,4 +99,30 @@ export default defineSchema({
     .index("by_visitor", ["visitorId"])
     .index("by_visitor_meal", ["visitorId", "mealType"])
     .index("by_meal", ["mealType"]),
+
+  finalRound: defineTable({
+    status: v.union(
+      v.literal("setup"),
+      v.literal("active"),
+      v.literal("finished")
+    ),
+    currentTeamIndex: v.number(),
+    teams: v.array(
+      v.object({
+        teamId: v.string(),
+        teamName: v.string(),
+        revealOrder: v.number(),
+      })
+    ),
+  }),
+
+  finalRoundVotes: defineTable({
+    finalRoundId: v.id("finalRound"),
+    visitorId: v.string(),
+    visitorTeamId: v.string(),
+    teamId: v.string(),
+  })
+    .index("by_finalRound_team", ["finalRoundId", "teamId"])
+    .index("by_finalRound_visitor", ["finalRoundId", "visitorId"])
+    .index("by_finalRound_visitor_team", ["finalRoundId", "visitorId", "teamId"]),
 });

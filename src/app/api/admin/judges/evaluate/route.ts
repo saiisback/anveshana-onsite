@@ -54,13 +54,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  if (assignment.status === COMPLETED_STATUS) {
-    return NextResponse.json(
-      { error: "Assignment already completed" },
-      { status: 400 }
-    );
-  }
-
   // Total score: sum of 6 params (max 60), scaled to 100
   const rawTotal =
     scores.innovation +

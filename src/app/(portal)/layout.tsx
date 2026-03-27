@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
+import { FinalRoundGuard } from "@/components/final-round-guard";
 
 import { getSession, getUserRole, type Role } from "@/lib/auth-server";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,13 @@ export default async function PortalLayout({
 
   const castRole: Role = getUserRole(session);
   const hasBottomNav = castRole === "PARTICIPANT" || castRole === "VOLUNTEER" || castRole === "JUDGE";
+  const isParticipant = castRole === "PARTICIPANT";
+
+  const content = isParticipant ? (
+    <FinalRoundGuard>{children}</FinalRoundGuard>
+  ) : (
+    children
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -35,7 +43,7 @@ export default async function PortalLayout({
         )}
       >
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-          {children}
+          {content}
         </div>
       </main>
 
