@@ -43,7 +43,6 @@ type ScanState =
       visitorRole: string;
       teamName: string | null;
       teamStall: number | null;
-      alreadyServed: boolean;
     }
   | { step: "distributing"; visitorId: string; visitorName: string }
   | { step: "success"; visitorName: string }
@@ -161,7 +160,6 @@ export default function FoodScannerPage() {
           visitorRole: user.role,
           teamName: user.team?.name ?? null,
           teamStall: user.team?.stallNumber ?? null,
-          alreadyServed: false, // Will be updated by useEffect
         });
       } catch {
         setScanState({
@@ -173,19 +171,8 @@ export default function FoodScannerPage() {
     []
   );
 
-  // Update alreadyServed when existingDistributions query resolves
-  useEffect(() => {
-    if (
-      scanState.step === "confirming" &&
-      existingDistributions !== undefined
-    ) {
-      setScanState((prev) =>
-        prev.step === "confirming"
-          ? { ...prev, alreadyServed: existingDistributions.length > 0 }
-          : prev
-      );
-    }
-  }, [existingDistributions, scanState.step]);
+  // Derive alreadyServed directly from the query instead of syncing into state
+  const alreadyServed = (existingDistributions?.length ?? 0) > 0;
 
   const handleScanError = useCallback((_errorMessage: string) => {
     // html5-qrcode fires this continuously when no QR is in frame — ignore it
@@ -376,7 +363,7 @@ export default function FoodScannerPage() {
                 )}
               </div>
 
-              {scanState.alreadyServed && (
+              {alreadyServed && (
                 <div className="mx-auto flex max-w-xs items-center gap-2 rounded-lg border border-yellow-500/50 bg-yellow-500/10 p-3">
                   <AlertTriangle className="size-5 text-yellow-500" />
                   <p className="text-sm text-yellow-600 dark:text-yellow-400">
@@ -429,8 +416,8 @@ export default function FoodScannerPage() {
                       )}
                       <div className="flex justify-between">
                         <span className="text-sm text-muted-foreground">{selectedMeal} Status</span>
-                        <Badge variant={scanState.alreadyServed ? "default" : "secondary"}>
-                          {scanState.alreadyServed ? "Already Received" : "Not Received"}
+                        <Badge variant={alreadyServed ? "default" : "secondary"}>
+                          {alreadyServed ? "Already Received" : "Not Received"}
                         </Badge>
                       </div>
                     </div>
@@ -444,7 +431,7 @@ export default function FoodScannerPage() {
                 </Button>
                 <Button
                   onClick={handleConfirmDistribution}
-                  disabled={scanState.alreadyServed}
+                  disabled={alreadyServed}
                 >
                   <CheckCircle2 className="mr-1.5 size-4" />
                   Confirm
