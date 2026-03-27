@@ -360,6 +360,36 @@ export function passwordSetupEmail(name: string, setupUrl: string) {
   `);
 }
 
+export function passwordResetEmail(name: string, resetUrl: string) {
+  const safeName = escapeHtml(name);
+  return baseLayout(`
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="center" style="padding-bottom: 20px;">
+          <span style="font-size: 48px;">&#x1F511;</span>
+        </td>
+      </tr>
+    </table>
+
+    <h2 style="margin: 0 0 8px; font-size: 22px; font-weight: 800; color: #fafafa; text-align: center;">Reset Your Password</h2>
+    <p style="margin: 0 0 24px; font-size: 14px; color: #a3a3a3; text-align: center; line-height: 1.7;">
+      Hi <strong style="color: #e5e5e5;">${safeName}</strong>, a password reset was requested for your account.<br/>
+      Click below to set a new password.
+    </p>
+
+    ${infoBox(`
+      ${infoRow("&#x1F464;", "Name", safeName)}
+      ${infoRow("&#x23F3;", "Link Expires", "7 Days")}
+    `)}
+
+    ${ctaButton(resetUrl, "&#x1F512;&nbsp;&nbsp;Reset Password", "#6366f1")}
+
+    <p style="margin: 16px 0 0; font-size: 13px; color: #525252; text-align: center;">&#x26A0; If you did not request this, you can ignore this email.</p>
+
+    ${fallbackLink(resetUrl)}
+  `);
+}
+
 export function volunteerApprovedEmail(name: string, setupUrl: string) {
   const safeName = escapeHtml(name);
   return baseLayout(`

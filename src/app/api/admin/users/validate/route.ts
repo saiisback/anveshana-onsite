@@ -8,6 +8,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "userId required" }, { status: 400 });
   }
 
+  const includeMembers = request.nextUrl.searchParams.get("includeMembers") === "true";
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
@@ -19,6 +21,17 @@ export async function GET(request: NextRequest) {
               name: true,
               stallNumber: true,
               status: true,
+              prototypeTitle: true,
+              category: true,
+              ...(includeMembers && {
+                members: {
+                  include: {
+                    user: {
+                      select: { id: true, name: true, email: true },
+                    },
+                  },
+                },
+              }),
             },
           },
         },
@@ -43,6 +56,16 @@ export async function GET(request: NextRequest) {
           name: team.name,
           stallNumber: team.stallNumber,
           status: team.status,
+          prototypeTitle: team.prototypeTitle ?? null,
+          category: team.category ?? null,
+          ...((team as Record<string, unknown>).members && {
+            members: ((team as Record<string, unknown>).members as Array<{ user: { id: string; name: string; email: string }; roleInTeam: string }>).map((m) => ({
+              id: m.user.id,
+              name: m.user.name,
+              email: m.user.email,
+              roleInTeam: m.roleInTeam,
+            })),
+          }),
         }
       : null,
   });

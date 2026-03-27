@@ -33,6 +33,8 @@ import {
   UserPlus,
   User,
   UtensilsCrossed,
+  Info,
+  KeyRound,
 } from "lucide-react";
 import { useState } from "react";
 import {
@@ -64,6 +66,7 @@ const navItems: Partial<Record<Role, NavItem[]>> = {
     { label: "Home", href: "/volunteer", icon: <LayoutDashboard className="size-5" /> },
     { label: "Check-in", href: "/volunteer/scan", icon: <ScanLine className="size-5" /> },
     { label: "Food", href: "/volunteer/scan/food", icon: <UtensilsCrossed className="size-5" /> },
+    { label: "Info", href: "/volunteer/scan/info", icon: <Info className="size-5" /> },
     { label: "Requests", href: "/volunteer/requests", icon: <Inbox className="size-5" /> },
     { label: "Alerts", href: "/volunteer/notifications", icon: <Bell className="size-5" /> },
   ],
@@ -81,6 +84,7 @@ const navItems: Partial<Record<Role, NavItem[]>> = {
     { label: "Notifications", href: "/admin/notifications", icon: <Bell className="size-5" /> },
     { label: "Help Requests", href: "/admin/help-requests", icon: <HelpCircle className="size-5" /> },
     { label: "Register", href: "/admin/register", icon: <UserPlus className="size-5" /> },
+    { label: "Reset Password", href: "/admin/reset-password", icon: <KeyRound className="size-5" /> },
     { label: "Analysis", href: "/admin/analysis", icon: <BarChart3 className="size-5" /> },
     { label: "Settings", href: "/admin/settings", icon: <Settings className="size-5" /> },
   ],
