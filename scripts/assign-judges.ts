@@ -93,11 +93,11 @@ async function main() {
 
   console.log(`\n=== Teams: ${hwTeams.length} HW + ${swTeams.length} SW = ${allTeams.length} ===\n`);
 
-  // 3. Build assignments following Option A allocation
-  // Harish (HW): all 13 HW + 10 SW = 23 now (reserved: +2 HW = 25)
-  // Swaroop (SW): 6 HW + 17 SW = 23 now (reserved: +1 HW + 1 SW = 25)
-  // Neeraj (SW): 7 HW + 17 SW = 24 now (reserved: +1 HW = 25)
-  // Santosh (SW): 0 HW + 24 SW = 24 now (reserved: +1 SW = 25)
+  // 3. Build assignments following updated allocation (15 HW, 35 SW)
+  // Harish (HW): all 15 HW + 10 SW = 25
+  // Swaroop (SW): 8 HW + 17 SW = 25
+  // Neeraj (SW): 7 HW + 18 SW = 25
+  // Santosh (SW): 0 HW + 25 SW = 25
 
   const assignments: Record<string, { teamId: string; teamName: string }[]> = {
     Harish: [],
@@ -107,9 +107,9 @@ async function main() {
   };
 
   // --- HW teams: each gets Harish + one of {Swaroop, Neeraj} ---
-  // Split: 6 to Swaroop, 7 to Neeraj
-  const hwForSwaroop = hwTeams.slice(0, 6);
-  const hwForNeeraj = hwTeams.slice(6); // remaining 7
+  // Split: 8 to Swaroop, 7 to Neeraj
+  const hwForSwaroop = hwTeams.slice(0, 8);
+  const hwForNeeraj = hwTeams.slice(8); // remaining 7
 
   for (const team of hwTeams) {
     assignments.Harish.push({ teamId: team.id, teamName: team.name });
@@ -122,20 +122,11 @@ async function main() {
   }
 
   // --- SW teams: each gets exactly 2 judges ---
-  // Harish: 10 SW, Swaroop: 17 SW, Neeraj: 17 SW, Santosh: 24 SW
-  // Total SW evals: 10 + 17 + 17 + 24 = 68 = 34 × 2 ✓
-
-  // Strategy: create pairs for each SW team
-  // We need to distribute so that:
-  //   Harish gets 10, Swaroop gets 17, Neeraj gets 17, Santosh gets 24
-
-  const swAssigned: { teamId: string; teamName: string; judges: string[] }[] = [];
-
-  // Santosh gets all 34 SW teams paired with someone else
-  // But Santosh only gets 24, not all 34. Let me think differently.
+  // Harish: 10 SW, Swaroop: 17 SW, Neeraj: 18 SW, Santosh: 25 SW
+  // Total SW evals: 10 + 17 + 18 + 25 = 70 = 35 × 2 ✓
 
   // Use a counter-based approach
-  const swTargets: Record<string, number> = { Harish: 10, Swaroop: 17, Neeraj: 17, Santosh: 24 };
+  const swTargets: Record<string, number> = { Harish: 10, Swaroop: 17, Neeraj: 18, Santosh: 25 };
   const swCounts: Record<string, number> = { Harish: 0, Swaroop: 0, Neeraj: 0, Santosh: 0 };
   const swJudgeOrder = ["Santosh", "Swaroop", "Neeraj", "Harish"]; // fill most-needed first
 

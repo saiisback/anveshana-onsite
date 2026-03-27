@@ -61,6 +61,7 @@ export default function FoodScannerPage() {
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [currentVisitorId, setCurrentVisitorId] = useState<string | null>(null);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  const processingRef = useRef(false);
   const scannerDivId = "qr-reader-food";
 
   const createDistribution = useMutation(api.foodDistributions.create);
@@ -72,20 +73,25 @@ export default function FoodScannerPage() {
   const stats = useQuery(api.foodDistributions.getStats, {});
 
   const resetScanner = useCallback(() => {
+    processingRef.current = false;
     setScanState({ step: "scanning" });
     setCurrentVisitorId(null);
     setCameraError(null);
     if (scannerRef.current) {
       try {
-        scannerRef.current.render(handleScanSuccess, handleScanError);
+        scannerRef.current.resume();
       } catch {
-        // Scanner may already be rendering
+        // Scanner may not be paused
       }
     }
   }, []);
 
   const handleScanSuccess = useCallback(
     async (decodedText: string) => {
+      // Prevent multiple simultaneous scan processing
+      if (processingRef.current) return;
+      processingRef.current = true;
+
       let userId: string | null = null;
 
       // Check for user QR code format
@@ -97,12 +103,14 @@ export default function FoodScannerPage() {
           step: "error",
           message: "Please scan a personal QR code, not a team QR code",
         });
+        processingRef.current = false;
         return;
       } else {
         setScanState({
           step: "error",
           message: "Not a valid Anveshana QR code",
         });
+        processingRef.current = false;
         return;
       }
 
@@ -111,6 +119,7 @@ export default function FoodScannerPage() {
           step: "error",
           message: "Invalid QR code: no user ID found",
         });
+        processingRef.current = false;
         return;
       }
 

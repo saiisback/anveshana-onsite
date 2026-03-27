@@ -60,6 +60,7 @@ export default function InfoScannerPage() {
   const [scanState, setScanState] = useState<ScanState>({ step: "scanning" });
   const [cameraError, setCameraError] = useState<string | null>(null);
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+  const processingRef = useRef(false);
   const scannerDivId = "qr-reader-info";
 
   const visitorId =
@@ -75,26 +76,33 @@ export default function InfoScannerPage() {
   );
 
   const resetScanner = useCallback(() => {
+    processingRef.current = false;
     setScanState({ step: "scanning" });
     setCameraError(null);
     if (scannerRef.current) {
       try {
-        scannerRef.current.render(handleScanSuccess, handleScanError);
+        scannerRef.current.resume();
       } catch {
-        // Scanner may already be rendering
+        // Scanner may not be paused
       }
     }
   }, []);
 
   const handleScanSuccess = useCallback(async (decodedText: string) => {
+    // Prevent multiple simultaneous scan processing
+    if (processingRef.current) return;
+    processingRef.current = true;
+
     if (!decodedText.startsWith(USER_QR_PREFIX)) {
       setScanState({ step: "error", message: "Not a valid participant QR code" });
+      processingRef.current = false;
       return;
     }
 
     const id = decodedText.slice(USER_QR_PREFIX.length);
     if (!id) {
       setScanState({ step: "error", message: "Invalid QR code: no user ID found" });
+      processingRef.current = false;
       return;
     }
 
