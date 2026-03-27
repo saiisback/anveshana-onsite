@@ -19,7 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Send, Megaphone, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
-const TARGET_ROLES = ["ALL", "PARTICIPANT", "VOLUNTEER", "JUDGE"] as const;
+const TARGET_ROLES = ["ALL", "PARTICIPANT", "VOLUNTEER"] as const;
 type TargetRole = (typeof TARGET_ROLES)[number];
 
 export default function AdminNotificationsPage() {
@@ -86,8 +86,6 @@ export default function AdminNotificationsPage() {
         return "secondary" as const;
       case "VOLUNTEER":
         return "outline" as const;
-      case "JUDGE":
-        return "destructive" as const;
       default:
         return "default" as const;
     }
@@ -98,7 +96,7 @@ export default function AdminNotificationsPage() {
       <div>
         <h1 className="font-mono text-xl font-bold text-foreground sm:text-2xl">Announcements</h1>
         <p className="text-sm text-muted-foreground">
-          Send announcements to participants, volunteers, and judges
+          Send announcements to participants and volunteers
         </p>
       </div>
 

@@ -9,7 +9,6 @@ export const create = mutation({
       v.literal("ALL"),
       v.literal("PARTICIPANT"),
       v.literal("VOLUNTEER"),
-      v.literal("JUDGE"),
       v.literal("ADMIN")
     ),
     createdBy: v.string(),
@@ -26,7 +25,6 @@ export const list = query({
         v.literal("ALL"),
         v.literal("PARTICIPANT"),
         v.literal("VOLUNTEER"),
-        v.literal("JUDGE"),
         v.literal("ADMIN")
       )
     ),

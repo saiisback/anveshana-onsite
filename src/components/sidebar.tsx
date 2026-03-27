@@ -70,7 +70,6 @@ const navItems: Partial<Record<Role, NavItem[]>> = {
   JUDGE: [
     { label: "Dashboard", href: "/judge", icon: <LayoutDashboard className="size-5" /> },
     { label: "Schedule", href: "/judge/schedule", icon: <Calendar className="size-5" /> },
-    { label: "Alerts", href: "/judge/notifications", icon: <Bell className="size-5" /> },
   ],
   ADMIN: [
     { label: "Dashboard", href: "/admin", icon: <LayoutDashboard className="size-5" /> },

@@ -83,7 +83,6 @@ export default defineSchema({
       v.literal("ALL"),
       v.literal("PARTICIPANT"),
       v.literal("VOLUNTEER"),
-      v.literal("JUDGE"),
       v.literal("ADMIN")
     ),
     createdBy: v.string(),

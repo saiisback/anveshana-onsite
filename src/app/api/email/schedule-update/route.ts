@@ -28,9 +28,9 @@ export const POST = withAdmin(async (request: Request) => {
   // Email team leads only (1 per team)
   const leadEmails = await getTeamLeadEmails();
 
-  // Also notify volunteers and judges
+  // Also notify volunteers (judges excluded from emails)
   const staff = await prisma.user.findMany({
-    where: { role: { in: ["VOLUNTEER", "JUDGE"] } },
+    where: { role: { in: ["VOLUNTEER"] } },
     select: { email: true },
   });
 

@@ -11,7 +11,7 @@ import type { Role } from "@/generated/prisma/enums";
 const announcementSchema = z.object({
   title: z.string().min(1).max(200),
   message: z.string().min(1).max(5000),
-  targetRole: z.enum(["ALL", "PARTICIPANT", "VOLUNTEER", "JUDGE", "ADMIN"]),
+  targetRole: z.enum(["ALL", "PARTICIPANT", "VOLUNTEER", "ADMIN"]),
 });
 
 export const POST = withAdmin(async (request: Request) => {
@@ -37,11 +37,11 @@ export const POST = withAdmin(async (request: Request) => {
     recipients.push(...leadEmails);
   }
 
-  if (targetRole === "ALL" || (targetRole !== "PARTICIPANT")) {
-    // Get non-participant users of the target role
+  if (targetRole === "ALL" || (targetRole !== "PARTICIPANT" && targetRole !== "JUDGE")) {
+    // Get non-participant users of the target role (judges excluded from emails)
     const roleFilter: Role[] =
       targetRole === "ALL"
-        ? ["VOLUNTEER", "JUDGE", "ADMIN"]
+        ? ["VOLUNTEER", "ADMIN"]
         : [targetRole as Role];
 
     const users = await prisma.user.findMany({
